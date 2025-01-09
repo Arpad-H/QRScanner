@@ -41,14 +41,14 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "QRScanner::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-QRScanner-Debug-1c969dba317753d92c8d.json",
+					"jsonFile" : "target-QRScanner-Debug-96bcd37bdb78faac0fbe.json",
 					"name" : "QRScanner",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "libBV::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-libBV-Debug-4a456a95e2f5909a55f4.json",
+					"jsonFile" : "target-libBV-Debug-74580e1bdd43f6780960.json",
 					"name" : "libBV",
 					"projectIndex" : 0
 				}
@@ -58,8 +58,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/quint/CLionProjects/QRScanner/cmake-build-debug",
-		"source" : "C:/Users/quint/CLionProjects/QRScanner"
+		"build" : "E:/Unity/UnityProjects/QRScanner/cmake-build-debug",
+		"source" : "E:/Unity/UnityProjects/QRScanner"
 	},
 	"version" : 
 	{

@@ -68,7 +68,7 @@ Img<RGB_Pixel> Cropped(const Img<bool> &labelled, vector<ObjectProperties> props
     }
     int width = x_max - x_min;
     int height = y_max - y_min;
-cout <<"width: " << width << " height: " << height << endl;
+    cout << "width: " << width << " height: " << height << endl;
     Img<RGB_Pixel> cropped(dim, dim);
 
 //    cropped[y_max][x_min] = RGB_Pixel(255, 255, 255);
@@ -86,7 +86,7 @@ cout <<"width: " << width << " height: " << height << endl;
         for (float x = x_min; x <= x_max; x += scaleX) {
 //            int scaledX = static_cast<int>(x * scaleX) + x_min;
 //            int scaledY = static_cast<int>(y * scaleY) + y_min;
-            cropped[iy][ix] = labelled[y+offset][x+offset];
+            cropped[iy][ix] = labelled[y + offset][x + offset];
             ix++;
         }
         ix = 0;
@@ -105,6 +105,7 @@ cout <<"width: " << width << " height: " << height << endl;
 
     return cropped;
 }
+
 Img<bool> Binary(const Img<RGB_Pixel> &image, unsigned char threshold) {
     const unsigned int width = image.Width();
     const unsigned int height = image.Height();
@@ -112,12 +113,14 @@ Img<bool> Binary(const Img<RGB_Pixel> &image, unsigned char threshold) {
 
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
-            binary[y][x] = image[y][x].Red() > threshold || image[y][x].Green() > threshold || image[y][x].Blue() > threshold;
+            binary[y][x] =
+                    image[y][x].Red() > threshold || image[y][x].Green() > threshold || image[y][x].Blue() > threshold;
         }
     }
 
     return binary;
 }
+
 vector<ObjectProperties> GetObjectProperties(const Img<unsigned int> &label_image) {
     map<unsigned int, ObjectProperties> objects;
 
@@ -266,6 +269,7 @@ Img<RGB_Pixel> Labelimage_to_RGB(const Img<unsigned int> &label_image, vector<RG
     }
     return Label_RGB;
 }
+
 vector<ObjectProperties> getPotentialFinderPatterns(const vector<ObjectProperties> &obj_props) {
     vector<ObjectProperties> potentialFinderPatterns;
     for (const auto &obj: obj_props) {
@@ -276,7 +280,8 @@ vector<ObjectProperties> getPotentialFinderPatterns(const vector<ObjectPropertie
     return potentialFinderPatterns;
 }
 
-Img<RGB_Pixel> HighlightPotentialPatterns(const vector<ObjectProperties> &obj_props, const Img<unsigned int> &label_image) {
+Img<RGB_Pixel>
+HighlightPotentialPatterns(const vector<ObjectProperties> &obj_props, const Img<unsigned int> &label_image) {
     const unsigned int width = label_image.Width();
     const unsigned int height = label_image.Height();
     Img<RGB_Pixel> QRHighlited(width, height);
@@ -284,14 +289,14 @@ Img<RGB_Pixel> HighlightPotentialPatterns(const vector<ObjectProperties> &obj_pr
     for (const auto &obj: obj_props) {
 
 
-            for (unsigned int y = obj.y_min; y <= obj.y_max; y++) {
-                for (unsigned int x = obj.x_min; x <= obj.x_max; x++) {
-                    if (y == obj.y_min || y == obj.y_max || x == obj.x_min || x == obj.x_max) {
-                        QRHighlited[y][x] = RGB_Pixel(255, 0, 0);
-                        QRHighlited[obj.y_center][obj.x_center] = RGB_Pixel(0, 255, 0);
-                    }
-//                    QRHighlited[y][x] = RGB_Pixel(255, 0, 0);
+        for (unsigned int y = obj.y_min; y <= obj.y_max; y++) {
+            for (unsigned int x = obj.x_min; x <= obj.x_max; x++) {
+                if (y == obj.y_min || y == obj.y_max || x == obj.x_min || x == obj.x_max) {
+                    QRHighlited[y][x] = RGB_Pixel(255, 0, 0);
+                    QRHighlited[obj.y_center][obj.x_center] = RGB_Pixel(0, 255, 0);
                 }
+//                    QRHighlited[y][x] = RGB_Pixel(255, 0, 0);
+            }
 
         }
 
@@ -300,34 +305,35 @@ Img<RGB_Pixel> HighlightPotentialPatterns(const vector<ObjectProperties> &obj_pr
 
     return QRHighlited;
 }
+
 float Distance(ObjectProperties a, ObjectProperties b) {
     int dx = a.x_center - b.x_center;
     int dy = a.y_center - b.y_center;
     return sqrt(pow(dx, 2) + pow(dy, 2));
 }
-bool IsLShape(const ObjectProperties& a, const ObjectProperties& b, const ObjectProperties& c) {
+
+bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c) {
 
 
     float d1 = Distance(a, b);
     float d2 = Distance(a, c);
     float d3 = Distance(b, c);
-Vector av = Vector(a.x_center, a.y_center, 0);
-Vector bv = Vector(b.x_center, b.y_center, 0);
-Vector cv = Vector(c.x_center, c.y_center, 0);
+    Vector av = Vector(a.x_center, a.y_center, 0);
+    Vector bv = Vector(b.x_center, b.y_center, 0);
+    Vector cv = Vector(c.x_center, c.y_center, 0);
 
-Vector ab = bv - av;
-Vector ac = cv - av;
-Vector bc = cv - bv;
+    Vector ab = bv - av;
+    Vector ac = cv - av;
+    Vector bc = cv - bv;
 
-float dot = -9999;
+    float dot = -9999;
     float max_d = max(d1, max(d2, d3));
     if (max_d == d1) {
-         dot = ab.dot(ac);
+        dot = ab.dot(ac);
     } else if (max_d == d2) {
-         dot = ab.dot(bc);
-    }
-    else if(max_d == d3) {
-         dot = ab.dot(ac);
+        dot = ab.dot(bc);
+    } else if (max_d == d3) {
+        dot = ab.dot(ac);
     }
     if (dot - 0.1 < 0 && dot + 0.1 > 0) {
         return true;
@@ -336,6 +342,7 @@ float dot = -9999;
     // Check angle using dot product
 
 }
+
 vector<ObjectProperties> FindQRCode(const vector<ObjectProperties> &obj_props) {
 
 
@@ -352,6 +359,7 @@ vector<ObjectProperties> FindQRCode(const vector<ObjectProperties> &obj_props) {
     }
     return {};
 }
+
 // ----------------------------------------------------------------------------------------------------
 // Vektor zufaelliger RGB-Farben fuer die Label eines Labelbilds erzeugen
 // ----------------------------------------------------------------------------------------------------
@@ -640,7 +648,7 @@ Img<bool> optimal_threshold(const Img<unsigned char> &gray_image) {
         }
     }
 //    optimal_threshold = 145;
-optimal_threshold = 80;
+    optimal_threshold = 80;
     cout << "Schwellwert: " << optimal_threshold << endl;
     // Binärbild erzeugen
     for (unsigned int y = 0; y < Height; ++y) {
@@ -687,13 +695,13 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
 int main(int argc, char *argv[]) {
 
     string t;
-    string filename = "C:\\Users\\quint\\CLionProjects\\QRScanner\\test1";
+    string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test";
 
     // Bild einlesen
     Img<RGB_Pixel> rgb;
     try {
-        string fileWExtnsion = filename + ".bmp";
-        BmpRead(fileWExtnsion.c_str()) >> rgb;
+        string fileWExtension = filename + ".bmp";
+        BmpRead(fileWExtension.c_str()) >> rgb;
         cout << "Lese Datei: " << filename << endl;
     }
 
@@ -811,12 +819,13 @@ int main(int argc, char *argv[]) {
             Referenzbild[y][x] = ReferenzFarben[x];
         }
     }
+    string referenzbild;
     try {
-        filename = "C:\\Users\\quint\\CLionProjects\\QRScanner\\Referenzbild.bmp";
-        BmpWrite(filename.c_str(), Referenzbild);
-        cout << "Schreibe " << filename << endl;
+        referenzbild = "E:\\Unity\\UnityProjects\\QRScanner\\Referenzbild.bmp";
+        BmpWrite(referenzbild.c_str(), Referenzbild);
+        cout << "Schreibe " << referenzbild << endl;
     } catch (const char *s) {
-        cerr << "Fehler beim Schreiben von " << filename << ": " << strerror(errno) << endl;
+        cerr << "Fehler beim Schreiben von " << referenzbild << ": " << strerror(errno) << endl;
         return -1;
     }
 
@@ -856,11 +865,11 @@ int main(int argc, char *argv[]) {
     }
 
     vector<ObjectProperties> obj_props = GetObjectProperties(Labelbild);
-vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
-    Img<RGB_Pixel> QRHighlited = HighlightPotentialPatterns(potentialFinderPatterns, Labelbild);
+    vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
+    Img<RGB_Pixel> potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns, Labelbild);
     try {
-        t = filename + "_QRHighlited.bmp";
-        BmpWrite(t.c_str(), QRHighlited);
+        t = filename + "_PotentialFinderPatterns.bmp";
+        BmpWrite(t.c_str(), potentialFinderPatternsVis);
         cout << "Schreibe " << t << endl;
     } catch (const char *s) {
         cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
@@ -870,7 +879,7 @@ vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(ob
     vector<ObjectProperties> qrCode = FindQRCode(potentialFinderPatterns);
     Img<RGB_Pixel> QRCode = HighlightPotentialPatterns(qrCode, Labelbild);
     try {
-        t = filename + "_QRCode.bmp";
+        t = filename + "_QRCodePosition.bmp";
         BmpWrite(t.c_str(), QRCode);
         cout << "Schreibe " << t << endl;
     } catch (const char *s) {
@@ -878,7 +887,7 @@ vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(ob
         return -1;
     }
 
-     Binaerbild = optimal_threshold(median);
+    Binaerbild = optimal_threshold(median);
     Img<RGB_Pixel> cropped = Cropped(Binaerbild, qrCode, 33);
     try {
         t = filename + "_cropped.bmp";

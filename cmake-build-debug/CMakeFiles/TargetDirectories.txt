@@ -1,4 +1,4 @@
-C:/Users/quint/CLionProjects/QRScanner/cmake-build-debug/CMakeFiles/QRScanner.dir
-C:/Users/quint/CLionProjects/QRScanner/cmake-build-debug/CMakeFiles/libBV.dir
-C:/Users/quint/CLionProjects/QRScanner/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/quint/CLionProjects/QRScanner/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+E:/Unity/UnityProjects/QRScanner/cmake-build-debug/CMakeFiles/QRScanner.dir
+E:/Unity/UnityProjects/QRScanner/cmake-build-debug/CMakeFiles/libBV.dir
+E:/Unity/UnityProjects/QRScanner/cmake-build-debug/CMakeFiles/edit_cache.dir
+E:/Unity/UnityProjects/QRScanner/cmake-build-debug/CMakeFiles/rebuild_cache.dir
