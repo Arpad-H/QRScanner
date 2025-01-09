@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="lib" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="BV" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Debug/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-pedantic-errors" />
+					<Add option="-pedantic" />
+					<Add option="-Wall" />
+					<Add option="-std=c++11" />
+					<Add option="-g" />
+					<Add option="-Werror" />
+					<Add directory="../include" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Unit filename="../include/AviRead.h" />
+		<Unit filename="../include/AviWrite.h" />
+		<Unit filename="../include/BmpRead.h" />
+		<Unit filename="../include/BmpWrite.h" />
+		<Unit filename="../include/ConvImg.h" />
+		<Unit filename="../include/FFT.h" />
+		<Unit filename="../include/FileIO.h" />
+		<Unit filename="../include/Grafik.h" />
+		<Unit filename="../include/Img.h" />
+		<Unit filename="../include/Position.h" />
+		<Unit filename="../include/RGB_Pixel.h" />
+		<Unit filename="../include/SimpleFont.h" />
+		<Unit filename="../include/xa_avi.h" />
+		<Unit filename="AviRead.cxx" />
+		<Unit filename="AviWrite.cxx" />
+		<Unit filename="BmpRead.cxx" />
+		<Unit filename="BmpWrite.cxx" />
+		<Unit filename="ConvImg.cxx" />
+		<Unit filename="FFT.cxx" />
+		<Unit filename="FileIO.cxx" />
+		<Unit filename="Grafik.cxx" />
+		<Unit filename="SimpleFont.cxx" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>
