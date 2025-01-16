@@ -6,7 +6,12 @@ include_directories("lib/libBV/include")
 
 add_executable(QRScanner main.cpp
         Vector.cpp
-        Vector.h)
+        Vector.h
+        Entzerren.cpp
+        Entzerren.h
+        Matrix.cpp
+        Matrix.h
+)
 add_library(libBV STATIC lib/libBV/lib/Grafik.cxx
         lib/libBV/lib/SimpleFont.cxx
         lib/libBV/lib/AviRead.cxx

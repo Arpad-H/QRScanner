@@ -221,4 +221,6 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/tr1/poly_hermite.tcc \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/tr1/poly_laguerre.tcc \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/tr1/riemann_zeta.tcc \
- E:\Unity\UnityProjects\QRScanner\Vector.h
+ E:\Unity\UnityProjects\QRScanner\Vector.h \
+ E:\Unity\UnityProjects\QRScanner\Entzerren.h \
+ E:\Unity\UnityProjects\QRScanner\Matrix.h

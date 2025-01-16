@@ -141,6 +141,54 @@ libBV/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\libBV.dir\build.make CMakeFiles/libBV.dir/build
 .PHONY : libBV/fast
 
+Entzerren.obj: Entzerren.cpp.obj
+.PHONY : Entzerren.obj
+
+# target to build an object file
+Entzerren.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/Entzerren.cpp.obj
+.PHONY : Entzerren.cpp.obj
+
+Entzerren.i: Entzerren.cpp.i
+.PHONY : Entzerren.i
+
+# target to preprocess a source file
+Entzerren.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/Entzerren.cpp.i
+.PHONY : Entzerren.cpp.i
+
+Entzerren.s: Entzerren.cpp.s
+.PHONY : Entzerren.s
+
+# target to generate assembly for a file
+Entzerren.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/Entzerren.cpp.s
+.PHONY : Entzerren.cpp.s
+
+Matrix.obj: Matrix.cpp.obj
+.PHONY : Matrix.obj
+
+# target to build an object file
+Matrix.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/Matrix.cpp.obj
+.PHONY : Matrix.cpp.obj
+
+Matrix.i: Matrix.cpp.i
+.PHONY : Matrix.i
+
+# target to preprocess a source file
+Matrix.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/Matrix.cpp.i
+.PHONY : Matrix.cpp.i
+
+Matrix.s: Matrix.cpp.s
+.PHONY : Matrix.s
+
+# target to generate assembly for a file
+Matrix.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/Matrix.cpp.s
+.PHONY : Matrix.cpp.s
+
 Vector.obj: Vector.cpp.obj
 .PHONY : Vector.obj
 
@@ -391,6 +439,12 @@ help:
 	@echo ... rebuild_cache
 	@echo ... QRScanner
 	@echo ... libBV
+	@echo ... Entzerren.obj
+	@echo ... Entzerren.i
+	@echo ... Entzerren.s
+	@echo ... Matrix.obj
+	@echo ... Matrix.i
+	@echo ... Matrix.s
 	@echo ... Vector.obj
 	@echo ... Vector.i
 	@echo ... Vector.s

@@ -1,4 +1,8 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/QRScanner.dir/Entzerren.cpp.obj"
+  "CMakeFiles/QRScanner.dir/Entzerren.cpp.obj.d"
+  "CMakeFiles/QRScanner.dir/Matrix.cpp.obj"
+  "CMakeFiles/QRScanner.dir/Matrix.cpp.obj.d"
   "CMakeFiles/QRScanner.dir/Vector.cpp.obj"
   "CMakeFiles/QRScanner.dir/Vector.cpp.obj.d"
   "CMakeFiles/QRScanner.dir/main.cpp.obj"

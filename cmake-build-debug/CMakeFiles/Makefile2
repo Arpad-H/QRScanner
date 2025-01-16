@@ -82,12 +82,12 @@ clean: CMakeFiles/libBV.dir/clean
 CMakeFiles/QRScanner.dir/all: CMakeFiles/libBV.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=1,2,3 "Built target QRScanner"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=1,2,3,4,5 "Built target QRScanner"
 .PHONY : CMakeFiles/QRScanner.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/QRScanner.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles 12
+	$(CMAKE_COMMAND) -E cmake_progress_start E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles 14
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/QRScanner.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles 0
 .PHONY : CMakeFiles/QRScanner.dir/rule
@@ -108,7 +108,7 @@ CMakeFiles/QRScanner.dir/clean:
 CMakeFiles/libBV.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\libBV.dir\build.make CMakeFiles/libBV.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\libBV.dir\build.make CMakeFiles/libBV.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=4,5,6,7,8,9,10,11,12 "Built target libBV"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=6,7,8,9,10,11,12,13,14 "Built target libBV"
 .PHONY : CMakeFiles/libBV.dir/all
 
 # Build rule for subdir invocation for target.
