@@ -34,9 +34,13 @@ struct ObjectProperties {
 };
 int CurrentImageWidth = 0;
 int CurrentImageHeight = 0;
+float scalingFactorX = 1;
+float scalingFactorY = 1; //TODO
+
 int Modules = 21; //Qr code version 1 as default
 
 void CalculateModulePixelSize(float &sizeX, float &sizeY, const vector<ObjectProperties> &obj_props) {
+   //postion patterns are 7 modules wide and high
     float avgWidth = 0;
     float avgHeight = 0;
     for (const auto &obj: obj_props) {
@@ -1025,6 +1029,9 @@ int main(int argc, char *argv[]) {
         }
         CurrentImageWidth = rgb.Width();
         CurrentImageHeight = rgb.Height();
+
+        scalingFactorX =
+        scalingFactorY =
 
         // --------------------------------------------------------------------------------
         // Binaeres Quellbild erzeugen
