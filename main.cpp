@@ -39,23 +39,81 @@ float scalingFactorY = 1; //TODO
 
 int Modules = 21; //Qr code version 1 as default
 
-void CalculateModulePixelSize(float &sizeX, float &sizeY, const vector<ObjectProperties> &obj_props) {
-   //postion patterns are 7 modules wide and high
-    float avgWidth = 0;
-    float avgHeight = 0;
-    for (const auto &obj: obj_props) {
 
-        float width = abs(obj.center.X - obj.touch_point.X) * 2;
-        float height = abs(obj.center.Y - obj.touch_point.Y) * 2;
-        avgWidth += width;
-        avgHeight += height;
+void Visualize(const vector<Vector> &points) {
+//    // Img<unsigned int> empty(CurrentImageWidth, CurrentImageHeight);
+    Img<RGB_Pixel> vis(CurrentImageWidth, CurrentImageHeight);
+    //cout << "obj_props.size(): " << obj_props.size() << endl;
+    string filename;
+    for (const auto &point: points) {
+
+        // cout << "obj.x_min: " << obj.x_min << " obj.x_max: " << obj.x_max << " obj.y_min: " << obj.y_min
+        //      << " obj.y_max: " << obj.y_max << endl;
+//        for (unsigned int y = obj.y_min; y <= obj.y_max; y++) {
+//            for (unsigned int x = obj.x_min; x <= obj.x_max; x++) {
+//                if (y == obj.y_min || y == obj.y_max || x == obj.x_min || x == obj.x_max) {
+        vis[point.Y][point.X] = RGB_Pixel(255, 0, 0);
+        vis[point.Y - 1][point.X] = RGB_Pixel(255, 0, 0);
+        vis[point.Y + 1][point.X] = RGB_Pixel(255, 0, 0);
+        vis[point.Y][point.X - 1] = RGB_Pixel(255, 0, 0);
+        vis[point.Y][point.X + 1] = RGB_Pixel(255, 0, 0);
+
+//                    vis[obj.center.Y][obj.center.X] = RGB_Pixel(255, 0, 0);
+    }
+//                    QRHighlited[y][x] = RGB_Pixel(255, 0, 0);
+
+
+
+
+
+    try {
+        filename = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\viz.bmp";
+        BmpWrite(filename.c_str(), vis);
+        cout << "Schreibe viz Bild: " << filename << endl;
+    }
+    catch (const char *s) {
+        cerr << "Fehler beim Schreiben von " << filename << ": " << s << endl;
 
     }
-    avgWidth /= obj_props.size();
-    avgHeight /= obj_props.size();
+}
 
-    sizeX = avgWidth / 7;
-    sizeY = avgHeight / 7;
+void VisualizeProps(const vector<ObjectProperties> &points) {
+    vector<Vector> vec;
+    for (const auto &point: points) {
+        vec.push_back(point.center);
+    }
+    Visualize(vec);
+}
+
+void CalculateModulePixelSize(const vector<ObjectProperties> &obj_props) {
+    //postion patterns are 7 modules wide and high
+    float avgWidth = 0;
+    float avgDiagonal = 0;
+    if (obj_props.size() != 3) {
+        cerr << "Error:  finder pattern amount mismatch" << endl;
+        return;
+    }
+    VisualizeProps(obj_props);
+    for (const auto &obj: obj_props) {
+
+        avgDiagonal += (obj.center - obj.touch_point).length() * 2;
+//        cout << "diagonal: " << diagonal << endl;
+//        avgWidth += cos(PI / 4) * diagonal;
+
+
+    }
+//    avgWidth /= 3;
+    avgDiagonal /= 3;
+    cout << "avgDiagonal: " << avgDiagonal << endl;
+    float moduleDiagonal = avgDiagonal / 7;
+    float moduleSize = ((PI / 4) * moduleDiagonal);
+    cout << "moduleSize: " << moduleSize << endl;
+    float delta1 = (obj_props[0].touch_point - obj_props[2].touch_point).length() + moduleDiagonal * 7;
+    float delta2 = (obj_props[0].touch_point - obj_props[1].touch_point).length() + moduleDiagonal * 7;
+    float delta = min(delta1, delta2);
+    cout << "delta: " << delta << endl;
+    Modules = (delta / moduleSize);
+    //sizeY = avgHeight / 7;
 
 }
 
@@ -99,37 +157,6 @@ HighlightPotentialPatterns(const vector<ObjectProperties> &obj_props) {
     return QRHighlited;
 }
 
-void Visualize(const vector<Vector> &points) {
-//    // Img<unsigned int> empty(CurrentImageWidth, CurrentImageHeight);
-//    Img<RGB_Pixel> vis(CurrentImageWidth, CurrentImageHeight);
-//    //cout << "obj_props.size(): " << obj_props.size() << endl;
-//    string filename;
-//    for (const auto &obj: obj_props) {
-//
-//       // cout << "obj.x_min: " << obj.x_min << " obj.x_max: " << obj.x_max << " obj.y_min: " << obj.y_min
-//       //      << " obj.y_max: " << obj.y_max << endl;
-//        for (unsigned int y = obj.y_min; y <= obj.y_max; y++) {
-//            for (unsigned int x = obj.x_min; x <= obj.x_max; x++) {
-//                if (y == obj.y_min || y == obj.y_max || x == obj.x_min || x == obj.x_max) {
-//                    vis[y][x] = obj.color;
-//                    vis[obj.center.Y][obj.center.X] = RGB_Pixel(255, 0, 0);
-//                }
-////                    QRHighlited[y][x] = RGB_Pixel(255, 0, 0);
-//            }
-//
-//        }
-
-//    }
-//    try {
-//        filename = "E:\\Unity\\UnityProjects\\QRScanner\\viz.bmp";
-//        BmpWrite(filename.c_str(), vis);
-//        cout << "Schreibe viz Bild: " << filename << endl;
-//    }
-//    catch (const char *s) {
-//        cerr << "Fehler beim Schreiben von " << filename << ": " << s << endl;
-//
-//    }
-}
 
 void Print_RotMat(double R[3][3]) {
     cout << "Rotationsmatrix (berechnet aus rx, ry, rz):" << endl;
@@ -156,7 +183,7 @@ bool IsPotentialFinderPattern(const ObjectProperties &obj, const unsigned int MI
     return true;
 }
 
-Img<RGB_Pixel> Cropped(const Img<bool> &labelled, vector<ObjectProperties> props, int dim) {
+Img<RGB_Pixel> Cropped(const Img<bool> &rotated, vector<ObjectProperties> props) {
 
     //Get bounds of qr code
     int x_min = 10000;
@@ -181,8 +208,8 @@ Img<RGB_Pixel> Cropped(const Img<bool> &labelled, vector<ObjectProperties> props
     }
     int width = x_max - x_min;
     int height = y_max - y_min;
-   // cout << "width: " << width << " height: " << height << endl;
-    Img<RGB_Pixel> cropped(dim, dim);
+    // cout << "width: " << width << " height: " << height << endl;
+    Img<RGB_Pixel> cropped(Modules, Modules);
 
 //    cropped[y_max][x_min] = RGB_Pixel(255, 255, 255);
 //    cropped[y_max][x_max] = RGB_Pixel(255, 255, 0);
@@ -192,14 +219,20 @@ Img<RGB_Pixel> Cropped(const Img<bool> &labelled, vector<ObjectProperties> props
     int ix = 0;
     int iy = 0;
     // Calculate scaling factors
-    float scaleX = static_cast<float>(width) / dim;
-    float scaleY = static_cast<float>(height) / dim;
+    float scaleX = static_cast<float>(width) / Modules;
+    float scaleY = static_cast<float>(height) / Modules;
     float offset = scaleX / 2;
     for (float y = y_min; y <= y_max; y += scaleY) {
         for (float x = x_min; x <= x_max; x += scaleX) {
 //            int scaledX = static_cast<int>(x * scaleX) + x_min;
 //            int scaledY = static_cast<int>(y * scaleY) + y_min;
-            cropped[iy][ix] = labelled[y + offset][x + offset];
+            if (INVERTED){
+                cropped[iy][ix] = !rotated[y + offset][x + offset] ;
+            }
+            else{
+                cropped[iy][ix] = rotated[y + offset][x + offset] ;
+            }
+
             ix++;
         }
         ix = 0;
@@ -388,7 +421,7 @@ Img<RGB_Pixel> Labelimage_to_RGB(const Img<unsigned int> &label_image, vector<RG
 vector<ObjectProperties> getPotentialFinderPatterns(const vector<ObjectProperties> &obj_props) {
     vector<ObjectProperties> potentialFinderPatterns;
     for (const auto &obj: obj_props) {
-        if (IsPotentialFinderPattern(obj, 100, 1000)) {
+        if (IsPotentialFinderPattern(obj, 100, 10000)) {
             potentialFinderPatterns.push_back(obj);
         }
     }
@@ -399,6 +432,16 @@ vector<ObjectProperties> getPotentialFinderPatterns(const vector<ObjectPropertie
 float Distance(ObjectProperties a, ObjectProperties b) {
 
     return abs((a.center - b.center).length());
+}
+void shrinkImage(Img<RGB_Pixel> &image) {
+
+    Img<RGB_Pixel> resizedImage(image.Width() * scalingFactorX, image.Height() * scalingFactorY);
+    for (unsigned int y = 0; y < image.Height(); y++) {
+        for (unsigned int x = 0; x < image.Width(); x++) {
+            resizedImage[y * scalingFactorY][x * scalingFactorX] = image[y][x];
+        }
+    }
+    image = resizedImage;
 }
 
 bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c) {
@@ -453,7 +496,7 @@ bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const Object
         }
     }
     float dot = ((topLeft - topRight).normalize()).dot((topLeft - bottomLeft).normalize());
-  //  cout << "dot: " << dot << endl;
+    //  cout << "dot: " << dot << endl;
     if (dot - 0.1 < 0 && dot + 0.1 > 0) {
         return true;
     }
@@ -584,7 +627,7 @@ float IsRotated(const ObjectProperties &a, const ObjectProperties &b, const Obje
     Vector horizontal = Vector(1, 0, 0);
     Vector topEdge = topRight - topLeft;
     topEdge.normalize();
-   // cout << "topEdge: " << topEdge.X << " " << topEdge.Y << " " << topEdge.Z << endl;
+    // cout << "topEdge: " << topEdge.X << " " << topEdge.Y << " " << topEdge.Z << endl;
 
     float angle = acos(horizontal.dot(topEdge)); // Angle with x-axis
     if (topEdge.Y < 0) {
@@ -925,94 +968,97 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
     return edges;
 }
 
-void CalculateModuleCount(const Img<RGB_Pixel> &rotatedImage) {
-    vector<ObjectProperties> obj_props = GetObjectProperties(ConvImg<unsigned int, RGB_Pixel>(rotatedImage));
-    vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
-    //Img<RGB_Pixel> potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns, Labelbild);
-//    try {
-//        t = filename + "_PotentialFinderPatterns.bmp";
-//        BmpWrite(t.c_str(), potentialFinderPatternsVis);
-//        cout << "Schreibe " << t << endl;
-//    } catch (const char *s) {
-//        cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
-//        return -1;
+//void CalculateModuleCount(const Img<RGB_Pixel> &rotatedImage, const vector<ObjectProperties> &qrCodeL) {
+////    vector<ObjectProperties> obj_props = GetObjectProperties(ConvImg<unsigned int, RGB_Pixel>(rotatedImage));
+////    vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
+//    //Img<RGB_Pixel> potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns, Labelbild);
+////    try {
+////        t = filename + "_PotentialFinderPatterns.bmp";
+////        BmpWrite(t.c_str(), potentialFinderPatternsVis);
+////        cout << "Schreibe " << t << endl;
+////    } catch (const char *s) {
+////        cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+////        return -1;
+////    }
+//
+////    vector<ObjectProperties> qrCode = FindOverlappingProps(potentialFinderPatterns);
+////    vector<ObjectProperties> qrCodeL = FindLShapedPatterns(qrCode);
+//    //Img<RGB_Pixel> QRCode = HighlightPotentialPatterns(qrCodeL);
+//    float moduleXPixels, moduleYPixels;
+//    CalculateModulePixelSize(moduleXPixels, moduleYPixels, qrCodeL);
+//    cout << "ModuleXPixels: " << moduleXPixels << " ModuleYPixels: " << moduleYPixels << endl;
+//    Vector av = qrCodeL[0].center;
+//    Vector bv = qrCodeL[1].center;
+//    Vector cv = qrCodeL[2].center;
+//
+//// Step 1: Calculate distances between all points
+//    float d1 = (bv - av).length(); // Distance AB
+//    float d2 = (cv - av).length(); // Distance AC
+//    float d3 = (cv - bv).length(); // Distance BC
+//    // Step 2: Identify the hypotenuse
+//    float max_d = max(d1, max(d2, d3));
+//    ObjectProperties topLeft, topRight, bottomLeft;
+//    Vector midPoint;
+//
+//    if (max_d == d1) { // AB is the hypotenuse
+//        midPoint = (av + bv) * 0.5f;
+//        if ((cv - midPoint).length() > (av - midPoint).length()) {
+//            topLeft = qrCodeL[2];
+//            topRight = qrCodeL[0];
+//            bottomLeft = qrCodeL[1];
+//        } else {
+//            topLeft = qrCodeL[2];
+//            topRight = qrCodeL[1];
+//            bottomLeft = qrCodeL[0];
+//        }
+//
+//    } else if (max_d == d2) { // AC is the hypotenuse
+//        midPoint = (av + cv) * 0.5f;
+//        if ((bv - midPoint).length() > (av - midPoint).length()) {
+//            topLeft = qrCodeL[1];
+//            topRight = qrCodeL[0];
+//            bottomLeft = qrCodeL[2];
+//        } else {
+//            topLeft = qrCodeL[1];
+//            topRight = qrCodeL[2];
+//            bottomLeft = qrCodeL[0];
+//        }
+//    } else if (max_d == d3) { // BC is the hypotenuse
+//        midPoint = (bv + cv) * 0.5f;
+//        if ((av - midPoint).length() > (bv - midPoint).length()) {
+//            topLeft = qrCodeL[0];
+//            topRight = qrCodeL[1];
+//            bottomLeft = qrCodeL[2];
+//        } else {
+//            topLeft = qrCodeL[0];
+//            topRight = qrCodeL[2];
+//            bottomLeft = qrCodeL[1];
+//        }
 //    }
-
-    vector<ObjectProperties> qrCode = FindOverlappingProps(potentialFinderPatterns);
-    vector<ObjectProperties> qrCodeL = FindLShapedPatterns(qrCode);
-    //Img<RGB_Pixel> QRCode = HighlightPotentialPatterns(qrCodeL);
-    float moduleXPixels, moduleYPixels;
-    CalculateModulePixelSize(moduleXPixels, moduleYPixels, qrCodeL);
-cout << "ModuleXPixels: " << moduleXPixels << " ModuleYPixels: " << moduleYPixels << endl;
-    Vector av = qrCodeL[0].center;
-    Vector bv = qrCodeL[1].center;
-    Vector cv = qrCodeL[2].center;
-
-// Step 1: Calculate distances between all points
-    float d1 = (bv - av).length(); // Distance AB
-    float d2 = (cv - av).length(); // Distance AC
-    float d3 = (cv - bv).length(); // Distance BC
-    // Step 2: Identify the hypotenuse
-    float max_d = max(d1, max(d2, d3));
-    ObjectProperties topLeft, topRight, bottomLeft;
-    Vector midPoint;
-
-    if (max_d == d1) { // AB is the hypotenuse
-        midPoint = (av + bv) * 0.5f;
-        if ((cv - midPoint).length() > (av - midPoint).length()) {
-            topLeft = qrCodeL[2];
-            topRight = qrCodeL[0];
-            bottomLeft = qrCodeL[1];
-        } else {
-            topLeft = qrCodeL[2];
-            topRight = qrCodeL[1];
-            bottomLeft = qrCodeL[0];
-        }
-
-    } else if (max_d == d2) { // AC is the hypotenuse
-        midPoint = (av + cv) * 0.5f;
-        if ((bv - midPoint).length() > (av - midPoint).length()) {
-            topLeft = qrCodeL[1];
-            topRight = qrCodeL[0];
-            bottomLeft = qrCodeL[2];
-        } else {
-            topLeft = qrCodeL[1];
-            topRight = qrCodeL[2];
-            bottomLeft = qrCodeL[0];
-        }
-    } else if (max_d == d3) { // BC is the hypotenuse
-        midPoint = (bv + cv) * 0.5f;
-        if ((av - midPoint).length() > (bv - midPoint).length()) {
-            topLeft = qrCodeL[0];
-            topRight = qrCodeL[1];
-            bottomLeft = qrCodeL[2];
-        } else {
-            topLeft = qrCodeL[0];
-            topRight = qrCodeL[2];
-            bottomLeft = qrCodeL[1];
-        }
-    }
-    float dx = topRight.x_max - topLeft.x_min;
-    float dy = topLeft.y_max - bottomLeft.y_min;
-cout << "dx: " << dx << " dy: " << dy << endl;
-    int moduleSizeX = dx /moduleXPixels;
-    int moduleSizeY = dy /moduleYPixels;
-
-    cout << "Module Size X: " << moduleSizeX << " Module Size Y: " << moduleSizeY << endl;
-
-    Modules = (moduleSizeX + moduleSizeY) / 2;
-
-}
+//    float dx = topRight.x_max - topLeft.x_min;
+//    float dy = topLeft.y_max - bottomLeft.y_min;
+//    cout << "dx: " << dx << " dy: " << dy << endl;
+//    float moduleSizeX = dx / moduleXPixels;
+//    //int moduleSizeY = dy / moduleYPixels;
+//
+//    cout << "Module Size X: " << moduleSizeX << " Module pixels X: " << moduleXPixels << endl;
+//
+//    Modules = moduleSizeX;
+//
+//}
 
 int main(int argc, char *argv[]) {
-    string files[] = {"E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
-                      "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90",
-                      "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r"};
+    string files[] = {"C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
+                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_90\\test_90",
+                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
+                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",};
+    string files2[] = {
+                       "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled"};
     string t;
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test\\test";
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90";
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r";
-    for (string &filename: files) {
+    for (string &filename: files2) {
 
 
         // Bild einlesen
@@ -1030,8 +1076,8 @@ int main(int argc, char *argv[]) {
         CurrentImageWidth = rgb.Width();
         CurrentImageHeight = rgb.Height();
 
-        scalingFactorX =
-        scalingFactorY =
+        //  scalingFactorX =
+        //scalingFactorY =
 
         // --------------------------------------------------------------------------------
         // Binaeres Quellbild erzeugen
@@ -1143,7 +1189,7 @@ int main(int argc, char *argv[]) {
         }
         string referenzbild;
         try {
-            referenzbild = "E:\\Unity\\UnityProjects\\QRScanner\\Referenzbild.bmp";
+            referenzbild = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\Referenzbild.bmp";
             BmpWrite(referenzbild.c_str(), Referenzbild);
             cout << "Schreibe " << referenzbild << endl;
         } catch (const char *s) {
@@ -1210,9 +1256,10 @@ int main(int argc, char *argv[]) {
             return -1;
         }
         if (qrCodeL.size() != 3) {
-            cerr << "Kein QR-Code gefunden" << endl;
+            cerr << "Kein QR-Code gefunden" << "L-Shaped patterns:" << floor(qrCodeL.size() / 3) << endl;
             return -1;
         }
+
         float angle = IsRotated(qrCodeL[0], qrCodeL[1], qrCodeL[2]);
         cout << "Angle: " << angle << endl;
 
@@ -1236,7 +1283,7 @@ int main(int argc, char *argv[]) {
         rotVect[1] = 0;
         rotVect[2] = angle;
         RotMat_from_Rodriguez(R, rotVect);
-       // Print_RotMat(R);
+        // Print_RotMat(R);
 
 
         Img<RGB_Pixel> img(width, height); // entzerrtes Bild
@@ -1244,7 +1291,7 @@ int main(int argc, char *argv[]) {
         // Calculate_Intrinsics(intrinsic_d, img_d.Width(), img_d.Height(), distCoeffs, rotVect, intrinsic, width, height);
 
         UndistoreImage(img, intrinsic_d, rgb, intrinsic_d, distCoeffs, rotVect);
-
+//        Img<bool> img_b = ConvImg<bool, RGB_Pixel>(img);
         // Entzerrtes Bild "img" wegspeichern
         try {
             t = filename + "_entzerrt.bmp";
@@ -1257,11 +1304,87 @@ int main(int argc, char *argv[]) {
         }
 
 
-        CalculateModuleCount(img);
+//        CalculateModuleCount(img, qrCodeL);
+        CalculateModulePixelSize(qrCodeL);
         cout << "Modules: " << Modules << endl;
 
+
+        Img<bool> binary_rotated = optimal_threshold(
+                medianBlur(ConvImg<unsigned char, RGB_Pixel>(img)));
+
+#if true == INVERTED
+        // Bei Bedarf Binaerbild invertieren: Objektpixel muessen "true" sein
+        for (unsigned int y = 0; y < height; y++) {
+            for (unsigned int x = 0; x < width; x++) {
+                bool &p = binary_rotated[y][x];
+                p = not p;
+            }
+        }
+#endif
+
+        try {
+            t = filename + "_binary_rotated.bmp";
+            BmpWrite(t.c_str(), binary_rotated);
+            cout << "Schreibe " << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+            return -1;
+        }
+
+
+        Img<unsigned int> Labelbild_rotated;
+        vector<pair<int, int> > Antastpunkte_rotated;
+        vector<unsigned int> Objektgroessen_rotated;
+        int Objekte_rotated = Labelling(Labelbild_rotated, Antastpunkte_rotated, Objektgroessen_rotated, 8,binary_rotated);
+        // Fehlebehandlung
+        if (Objekte_rotated < 0) {
+            cerr << "Fehler beim Labelling" << endl;
+            return -1;
+        } else if (Objekte_rotated == 0) {
+            cerr << "Keine Objekte gefunden" << endl;
+            return -1;
+        }
+        unsigned int num_objects_rotated = Objektgroessen_rotated.size();
+
+
+        // Labelbild mit verschiedenen Farben fuer die Objekte erzeugen und ausgeben
+        vector<RGB_Pixel> Farben_rotated = create_LabelColors(num_objects_rotated);
+        Img<RGB_Pixel> LabelAnzeige_rotated = Labelimage_to_RGB(Labelbild_rotated, Farben_rotated);
+        for (unsigned int i = 0; i < Objektgroessen_rotated.size(); i++) { // Antastpunkte schwarz einzeichnen
+            LabelAnzeige_rotated[Antastpunkte_rotated[i].second][Antastpunkte_rotated[i].first] = RGB_Pixel(0, 0, 0);
+        }
+        try {
+            t = filename + "_Labelbild_rotated.bmp";
+            BmpWrite(t.c_str(), LabelAnzeige_rotated);
+            cout << "Schreibe " << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+            return -1;
+        }
+
+        obj_props = GetObjectProperties(Labelbild_rotated);
+        potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
+        potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns);
+        try {
+            t = filename + "_PotentialFinderPatterns_rotated.bmp";
+            BmpWrite(t.c_str(), potentialFinderPatternsVis);
+            cout << "Schreibe " << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+            return -1;
+        }
+
+        qrCode = FindOverlappingProps(potentialFinderPatterns);
+        qrCodeL = FindLShapedPatterns(qrCode);
+//        QRCode = HighlightPotentialPatterns(qrCodeL);
+
+
+
+
+
+
         Binaerbild = optimal_threshold(median);
-        Img<RGB_Pixel> cropped = Cropped(Binaerbild, qrCode, 33);
+        Img<RGB_Pixel> cropped = Cropped(binary_rotated, qrCode);
         try {
             t = filename + "_cropped.bmp";
             BmpWrite(t.c_str(), cropped);
