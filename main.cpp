@@ -32,6 +32,28 @@ struct ObjectProperties {
     Vector center;
     RGB_Pixel color;
 };
+
+void
+AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft, Vector &topRight,
+            Vector &bottomLeft);
+
+ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props, Img<RGB_Pixel> img){
+    Vector topLeft;
+    Vector topRight;
+    Vector bottomLeft;
+    Vector bottomRight;
+    AssignProps(props[0], props[1], props[2], topLeft, topRight, bottomLeft);
+
+    bottomRight = bottomLeft + (topRight - topLeft);
+    ObjectProperties obj;
+    obj.center = bottomRight;
+    obj.x_min = bottomRight.X - 10;
+    obj.x_max = bottomRight.X + 10;
+    obj.y_min = bottomRight.Y - 10;
+    obj.y_max = bottomRight.Y + 10;
+    return obj;
+}
+
 int CurrentImageWidth = 0;
 int CurrentImageHeight = 0;
 float scalingFactorX = 1;
@@ -93,7 +115,7 @@ void CalculateModulePixelSize(const vector<ObjectProperties> &obj_props) {
         cerr << "Error:  finder pattern amount mismatch" << endl;
         return;
     }
-    VisualizeProps(obj_props);
+//    VisualizeProps(obj_props);
     for (const auto &obj: obj_props) {
 
         avgDiagonal += (obj.center - obj.touch_point).length() * 2;
@@ -166,7 +188,7 @@ void Print_RotMat(double R[3][3]) {
     cout << endl;
 }
 
-bool IsPotentialFinderPattern(const ObjectProperties &obj, const unsigned int MIN_AREA, const unsigned int MAX_AREA) {
+bool IsSquare(const ObjectProperties &obj, const unsigned int MIN_AREA, const unsigned int MAX_AREA) {
     unsigned int width = obj.x_max - obj.x_min + 1;
     unsigned int height = obj.y_max - obj.y_min + 1;
 
@@ -190,7 +212,7 @@ Img<RGB_Pixel> Cropped(const Img<bool> &rotated, vector<ObjectProperties> props)
     int y_min = 10000;
     int x_max, y_max = 0;
     for (const auto &obj: props) {
-        if (IsPotentialFinderPattern(obj, 100, 1000)) {
+        if (IsSquare(obj, 100, 1000)) {
 
             if (obj.x_min < x_min) {
                 x_min = obj.x_min;
@@ -421,7 +443,7 @@ Img<RGB_Pixel> Labelimage_to_RGB(const Img<unsigned int> &label_image, vector<RG
 vector<ObjectProperties> getPotentialFinderPatterns(const vector<ObjectProperties> &obj_props) {
     vector<ObjectProperties> potentialFinderPatterns;
     for (const auto &obj: obj_props) {
-        if (IsPotentialFinderPattern(obj, 100, 10000)) {
+        if (IsSquare(obj, 100, 10000)) {
             potentialFinderPatterns.push_back(obj);
         }
     }
@@ -447,6 +469,27 @@ void shrinkImage(Img<RGB_Pixel> &image) {
 bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c) {
 
 
+    Vector topLeft;
+    Vector topRight;
+    Vector bottomLeft;
+    AssignProps(a, b, c, topLeft, topRight, bottomLeft);
+
+
+    float dot = ((topLeft - topRight).normalize()).dot((topLeft - bottomLeft).normalize());
+    //  cout << "dot: " << dot << endl;
+    if (dot - 0.1 < 0 && dot + 0.1 > 0) {
+        if ( (topLeft - topRight).length() / (topLeft - bottomLeft).length() > 0.9 && (topLeft - topRight).length() / (topLeft - bottomLeft).length() < 1.1) {
+            return true;
+        }
+
+    }
+    return false;
+
+}
+
+void
+AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft, Vector &topRight,
+            Vector &bottomLeft) {
     Vector av = a.center;
     Vector bv = b.center;
     Vector cv = c.center;
@@ -455,9 +498,10 @@ bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const Object
     float d1 = (bv - av).length(); // Distance AB
     float d2 = (cv - av).length(); // Distance AC
     float d3 = (cv - bv).length(); // Distance BC
+
+
     // Step 2: Identify the hypotenuse
     float max_d = max(d1, max(d2, d3));
-    Vector topLeft, topRight, bottomLeft;
     Vector midPoint;
 
     if (max_d == d1) { // AB is the hypotenuse
@@ -495,13 +539,6 @@ bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const Object
             bottomLeft = bv;
         }
     }
-    float dot = ((topLeft - topRight).normalize()).dot((topLeft - bottomLeft).normalize());
-    //  cout << "dot: " << dot << endl;
-    if (dot - 0.1 < 0 && dot + 0.1 > 0) {
-        return true;
-    }
-    return false;
-
 }
 
 vector<ObjectProperties> FindOverlappingProps(const vector<ObjectProperties> &obj_props) {
@@ -535,17 +572,24 @@ vector<ObjectProperties> FindLShapedPatterns(const vector<ObjectProperties> &obj
 //    }
 //    return {};
     vector<ObjectProperties> bestPatterns;
+    float bestScore = 0;
     for (int i = 0; i < obj_props.size(); i++) {
         for (int j = i + 1; j < obj_props.size(); j++) {
             for (int k = j + 1; k < obj_props.size(); k++) {
                 if (IsLShape(obj_props[i], obj_props[j], obj_props[k])) {
-                    bestPatterns = {obj_props[i], obj_props[j], obj_props[k]};
-                    return bestPatterns;
+                    float smallest = min(obj_props[i].area, min(obj_props[j].area, obj_props[k].area));
+                    float score = smallest*3;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestPatterns = {obj_props[i], obj_props[j], obj_props[k]};
+                    }
+//                    bestPatterns = {obj_props[i], obj_props[j], obj_props[k]};
+
                 }
             }
         }
     }
-    return {};
+    return bestPatterns;
 }
 
 float IsRotated(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c) {
@@ -1048,17 +1092,23 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
 //}
 
 int main(int argc, char *argv[]) {
-    string files[] = {"C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
-                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_90\\test_90",
-                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
-                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",};
-    string files2[] = {
-                       "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled"};
+//    string files[] = {"C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
+//                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_90\\test_90",
+//                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
+//                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",};
+//    string files2[] = {
+//                       "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled"};
+string files3[] = {
+//        "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
+//        "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90",
+//        "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r",
+//        "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
+        "E:\\Unity\\UnityProjects\\QRScanner\\ffb_rotated\\ffb_r"};
     string t;
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test\\test";
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90";
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r";
-    for (string &filename: files2) {
+    for (string &filename: files3) {
 
 
         // Bild einlesen
@@ -1189,7 +1239,7 @@ int main(int argc, char *argv[]) {
         }
         string referenzbild;
         try {
-            referenzbild = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\Referenzbild.bmp";
+            referenzbild = "Referenzbild.bmp";
             BmpWrite(referenzbild.c_str(), Referenzbild);
             cout << "Schreibe " << referenzbild << endl;
         } catch (const char *s) {
@@ -1244,8 +1294,8 @@ int main(int argc, char *argv[]) {
             return -1;
         }
 
-        vector<ObjectProperties> qrCode = FindOverlappingProps(potentialFinderPatterns);
-        vector<ObjectProperties> qrCodeL = FindLShapedPatterns(qrCode);
+//        vector<ObjectProperties> qrCode = FindOverlappingProps(potentialFinderPatterns);
+        vector<ObjectProperties> qrCodeL = FindLShapedPatterns(potentialFinderPatterns);
         Img<RGB_Pixel> QRCode = HighlightPotentialPatterns(qrCodeL);
         try {
             t = filename + "_QRCodePosition.bmp";
@@ -1374,17 +1424,27 @@ int main(int argc, char *argv[]) {
             return -1;
         }
 
-        qrCode = FindOverlappingProps(potentialFinderPatterns);
-        qrCodeL = FindLShapedPatterns(qrCode);
+//        qrCode = FindOverlappingProps(potentialFinderPatterns);
+        qrCodeL = FindLShapedPatterns(potentialFinderPatterns);
 //        QRCode = HighlightPotentialPatterns(qrCodeL);
 
+        ObjectProperties o = EstimtateFourthCorner(qrCodeL, QRCode);
+        qrCodeL.push_back(o);
+        QRCode = HighlightPotentialPatterns(qrCodeL);
 
-
+        try {
+            t = filename + "_QRCodePosition_rotated.bmp";
+            BmpWrite(t.c_str(), QRCode);
+            cout << "Schreibe " << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+            return -1;
+        }
 
 
 
         Binaerbild = optimal_threshold(median);
-        Img<RGB_Pixel> cropped = Cropped(binary_rotated, qrCode);
+        Img<RGB_Pixel> cropped = Cropped(binary_rotated, qrCodeL);
         try {
             t = filename + "_cropped.bmp";
             BmpWrite(t.c_str(), cropped);
@@ -1420,5 +1480,6 @@ int main(int argc, char *argv[]) {
 
     }
     return 0;
+
 }
 
