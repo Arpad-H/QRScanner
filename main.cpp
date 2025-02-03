@@ -32,12 +32,17 @@ struct ObjectProperties {
     Vector center;
     RGB_Pixel color;
 };
+struct Line {
+    double rho;
+    double theta;
+};
 
 void
-AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft, Vector &topRight,
+AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
+            Vector &topRight,
             Vector &bottomLeft);
 
-ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props, Img<RGB_Pixel> img){
+ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props, Img<RGB_Pixel> img) {
     Vector topLeft;
     Vector topRight;
     Vector bottomLeft;
@@ -106,6 +111,7 @@ void VisualizeProps(const vector<ObjectProperties> &points) {
     }
     Visualize(vec);
 }
+
 
 void CalculateModulePixelSize(const vector<ObjectProperties> &obj_props) {
     //postion patterns are 7 modules wide and high
@@ -248,11 +254,10 @@ Img<RGB_Pixel> Cropped(const Img<bool> &rotated, vector<ObjectProperties> props)
         for (float x = x_min; x <= x_max; x += scaleX) {
 //            int scaledX = static_cast<int>(x * scaleX) + x_min;
 //            int scaledY = static_cast<int>(y * scaleY) + y_min;
-            if (INVERTED){
-                cropped[iy][ix] = !rotated[y + offset][x + offset] ;
-            }
-            else{
-                cropped[iy][ix] = rotated[y + offset][x + offset] ;
+            if (INVERTED) {
+                cropped[iy][ix] = !rotated[y + offset][x + offset];
+            } else {
+                cropped[iy][ix] = rotated[y + offset][x + offset];
             }
 
             ix++;
@@ -455,6 +460,7 @@ float Distance(ObjectProperties a, ObjectProperties b) {
 
     return abs((a.center - b.center).length());
 }
+
 void shrinkImage(Img<RGB_Pixel> &image) {
 
     Img<RGB_Pixel> resizedImage(image.Width() * scalingFactorX, image.Height() * scalingFactorY);
@@ -478,7 +484,8 @@ bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const Object
     float dot = ((topLeft - topRight).normalize()).dot((topLeft - bottomLeft).normalize());
     //  cout << "dot: " << dot << endl;
     if (dot - 0.1 < 0 && dot + 0.1 > 0) {
-        if ( (topLeft - topRight).length() / (topLeft - bottomLeft).length() > 0.9 && (topLeft - topRight).length() / (topLeft - bottomLeft).length() < 1.1) {
+        if ((topLeft - topRight).length() / (topLeft - bottomLeft).length() > 0.9 &&
+            (topLeft - topRight).length() / (topLeft - bottomLeft).length() < 1.1) {
             return true;
         }
 
@@ -488,7 +495,8 @@ bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const Object
 }
 
 void
-AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft, Vector &topRight,
+AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
+            Vector &topRight,
             Vector &bottomLeft) {
     Vector av = a.center;
     Vector bv = b.center;
@@ -578,7 +586,7 @@ vector<ObjectProperties> FindLShapedPatterns(const vector<ObjectProperties> &obj
             for (int k = j + 1; k < obj_props.size(); k++) {
                 if (IsLShape(obj_props[i], obj_props[j], obj_props[k])) {
                     float smallest = min(obj_props[i].area, min(obj_props[j].area, obj_props[k].area));
-                    float score = smallest*3;
+                    float score = smallest * 3;
                     if (score > bestScore) {
                         bestScore = score;
                         bestPatterns = {obj_props[i], obj_props[j], obj_props[k]};
@@ -1091,24 +1099,165 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
 //
 //}
 
+vector<Line> ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rho_max, unsigned int theta_dim, unsigned int threshold) {
+    vector<Line> detected_lines;
+
+    for (unsigned int rho = 0; rho < hough.size(); ++rho) {
+        for (unsigned int theta = 0; theta < theta_dim; ++theta) {
+            if (hough[rho][theta] > threshold) {
+                detected_lines.push_back({(double)(rho - rho_max), theta * M_PI / 180.0});
+            }
+        }
+    }
+
+    return detected_lines;
+}
+void DrawLines(Img<bool> &image, const vector<Line> &lines) {
+    const unsigned int width = image.Width();
+    const unsigned int height = image.Height();
+
+    for (const auto &line: lines) {
+        double radian = line.theta;
+        double cos_theta = cos(radian);
+        double sin_theta = sin(radian);
+
+        for (unsigned int y = 0; y < height; ++y) {
+            for (unsigned int x = 0; x < width; ++x) {
+                double rho = x * cos_theta + y * sin_theta;
+                if (abs(rho - line.rho) < 1) {
+                    image[y][x] = true;
+                }
+            }
+        }
+    }
+}
+
+vector<Line> HoughTransform(const Img<bool> &input) {
+
+    const unsigned int width = input.Width();
+    const unsigned int height = input.Height();
+
+    const unsigned int rho_max = static_cast<unsigned int>(sqrt(width * width + height * height));
+    const unsigned int rho_dim = 2 * rho_max + 1;
+    const unsigned int theta_dim = 360;
+
+    vector<vector<unsigned int>> hough(rho_dim, vector<unsigned int>(theta_dim, 0));
+
+    // Hough Transform
+    for (unsigned int y = 0; y < height; ++y) {
+        for (unsigned int x = 0; x < width; ++x) {
+            if (input[y][x]) {
+                for (int theta = 0; theta < theta_dim; ++theta) {
+                    double radian = theta * M_PI / 180.0;
+                    double rho = x * cos(radian) + y * sin(radian);
+                    int rho_index = static_cast<int>(rho + rho_max);
+
+                    if (rho_index >= 0 && rho_index < static_cast<int>(rho_dim)) {
+                        hough[rho_index][theta]++;
+                    }
+                }
+            }
+        }
+    }
+
+    // Find strongest lines
+    vector<Line> lines = ExtractStrongestLines(hough, rho_max, theta_dim, 145);
+
+    // Draw lines on image
+    Img<bool> hough_image(width, height);
+    DrawLines(hough_image, lines);
+
+    try {
+        string t = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\hough.bmp";
+        BmpWrite(t.c_str(), hough_image);
+        cout << "Schreibe hough.bmp" << endl;
+    } catch (const char *s) {
+        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
+    }
+
+    return lines;
+    // akkumulatorbild
+
+//    Img<unsigned char> hough_vis(rho_dim, theta_dim);
+//    unsigned int max_votes = 0;
+//    for (unsigned int rho = 0; rho < rho_dim; ++rho) {
+//        for (unsigned int theta = 0; theta < theta_dim; ++theta) {
+//            hough_vis[rho][theta] = static_cast<unsigned char>(hough[rho][theta]);
+//            max_votes = std::max(max_votes, hough[rho][theta]);
+//        }
+//    }
+//
+//    try {
+//        string t = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\houghspektrum.bmp";
+//        BmpWrite(t.c_str(), hough_vis);
+//        cout << "Schreibe houghspektrum.bmp" << endl;
+//    } catch (const char *s) {
+//        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
+//    }
+}
+vector<ObjectProperties> getQRCornernsFromLines (vector<Line> lines, vector<ObjectProperties> qrCodeL) {
+    vector<ObjectProperties> qrCorners;
+
+    //get lines closest to the 3 L shapes
+    Line topLine = lines[0];
+    Line leftLine = lines[0];
+    Line rightLine = lines[0];
+
+    for (Line line : lines) {
+        if (line.theta > 80 && line.theta < 100) {
+            if (line.rho > topLine.rho) {
+                topLine = line;
+            }
+        }
+        if (line.theta > 170 && line.theta < 190) {
+            if (line.rho > leftLine.rho) {
+                leftLine = line;
+            }
+        }
+        if (line.theta > 260 && line.theta < 280) {
+            if (line.rho > rightLine.rho) {
+                rightLine = line;
+            }
+        }
+    }
+
+    Img<bool> corners(CurrentImageWidth, CurrentImageHeight);
+    DrawLines(corners, {topLine, leftLine, rightLine});
+    try {
+        string t = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\corners.bmp";
+        BmpWrite(t.c_str(), corners);
+        cout << "Schreibe corners.bmp" << endl;
+    } catch (const char *s) {
+        cerr << "Fehler beim Schreiben von corners.bmp: " << strerror(errno) << endl;
+    }
+
+    return {};
+}
+
+//void
+
 int main(int argc, char *argv[]) {
-//    string files[] = {"C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
+    string files[] = {
+//            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
 //                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_90\\test_90",
 //                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
-//                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",};
+//                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",
+            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb_rotated\\ffb_r"
+    };
 //    string files2[] = {
 //                       "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled"};
-string files3[] = {
+    string files3[] = {
 //        "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
 //        "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90",
 //        "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r",
 //        "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
-        "E:\\Unity\\UnityProjects\\QRScanner\\ffb_rotated\\ffb_r"};
+//        "E:\\Unity\\UnityProjects\\QRScanner\\ffb_rotated\\ffb_r"
+    };
     string t;
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test\\test";
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90";
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r";
-    for (string &filename: files3) {
+    for (string &filename: files) {
 
 
         // Bild einlesen
@@ -1385,7 +1534,8 @@ string files3[] = {
         Img<unsigned int> Labelbild_rotated;
         vector<pair<int, int> > Antastpunkte_rotated;
         vector<unsigned int> Objektgroessen_rotated;
-        int Objekte_rotated = Labelling(Labelbild_rotated, Antastpunkte_rotated, Objektgroessen_rotated, 8,binary_rotated);
+        int Objekte_rotated = Labelling(Labelbild_rotated, Antastpunkte_rotated, Objektgroessen_rotated, 8,
+                                        binary_rotated);
         // Fehlebehandlung
         if (Objekte_rotated < 0) {
             cerr << "Fehler beim Labelling" << endl;
@@ -1441,7 +1591,15 @@ string files3[] = {
             return -1;
         }
 
-
+        Img<bool> edges_rotated = edgeDetection(binary_rotated);
+        try {
+            t = filename + "_edges_rotated.bmp";
+            BmpWrite(t.c_str(), edges_rotated);
+            cout << "Schreibe " << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+            return -1;
+        }
 
         Binaerbild = optimal_threshold(median);
         Img<RGB_Pixel> cropped = Cropped(binary_rotated, qrCodeL);
@@ -1453,6 +1611,11 @@ string files3[] = {
             cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
             return -1;
         }
+
+        Img<bool> hough = Img<bool>(width, height);
+        vector<Line> lines= HoughTransform(edges_rotated);
+        getQRCornernsFromLines(lines, qrCodeL);
+
 
 //    Img<unsigned char> cropped_bw = ConvImg<unsigned char, RGB_Pixel>(cropped);
 //    Img<bool> binary_cropped = optimal_threshold(cropped_bw);

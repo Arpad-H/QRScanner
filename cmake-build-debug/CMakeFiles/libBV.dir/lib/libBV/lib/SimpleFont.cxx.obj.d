@@ -1,3 +1,3 @@
 CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj: \
- E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\SimpleFont.cxx \
- E:/Unity/UnityProjects/QRScanner/lib/libBV/include/SimpleFont.h
+ C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\SimpleFont.cxx \
+ C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/include/SimpleFont.h

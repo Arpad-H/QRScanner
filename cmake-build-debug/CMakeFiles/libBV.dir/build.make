@@ -43,19 +43,19 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "D:\Program Files (x86)\JetBrains\CLion\bin\cmake\win\x64\bin\cmake.exe"
+CMAKE_COMMAND = C:\Users\quint\AppData\Local\Programs\CLion\bin\cmake\win\x64\bin\cmake.exe
 
 # The command to remove a file.
-RM = "D:\Program Files (x86)\JetBrains\CLion\bin\cmake\win\x64\bin\cmake.exe" -E rm -f
+RM = C:\Users\quint\AppData\Local\Programs\CLion\bin\cmake\win\x64\bin\cmake.exe -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = E:\Unity\UnityProjects\QRScanner
+CMAKE_SOURCE_DIR = C:\Users\quint\Documents\Studium\HSOS\QRScanner
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = E:\Unity\UnityProjects\QRScanner\cmake-build-debug
+CMAKE_BINARY_DIR = C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/libBV.dir/depend.make
@@ -70,123 +70,123 @@ include CMakeFiles/libBV.dir/flags.make
 
 CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj: CMakeFiles/libBV.dir/flags.make
 CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj: CMakeFiles/libBV.dir/includes_CXX.rsp
-CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj: E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/Grafik.cxx
+CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj: C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/Grafik.cxx
 CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj: CMakeFiles/libBV.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\Grafik.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\Grafik.cxx.obj -c E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\Grafik.cxx
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj"
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\Grafik.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\Grafik.cxx.obj -c C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\Grafik.cxx
 
 CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.i"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\Grafik.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\Grafik.cxx.i
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\Grafik.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\Grafik.cxx.i
 
 CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.s"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\Grafik.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\Grafik.cxx.s
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\Grafik.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\Grafik.cxx.s
 
 CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj: CMakeFiles/libBV.dir/flags.make
 CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj: CMakeFiles/libBV.dir/includes_CXX.rsp
-CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj: E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/SimpleFont.cxx
+CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj: C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/SimpleFont.cxx
 CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj: CMakeFiles/libBV.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\SimpleFont.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\SimpleFont.cxx.obj -c E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\SimpleFont.cxx
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj"
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\SimpleFont.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\SimpleFont.cxx.obj -c C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\SimpleFont.cxx
 
 CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.i"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\SimpleFont.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\SimpleFont.cxx.i
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\SimpleFont.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\SimpleFont.cxx.i
 
 CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.s"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\SimpleFont.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\SimpleFont.cxx.s
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\SimpleFont.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\SimpleFont.cxx.s
 
 CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj: CMakeFiles/libBV.dir/flags.make
 CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj: CMakeFiles/libBV.dir/includes_CXX.rsp
-CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj: E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/AviRead.cxx
+CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj: C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/AviRead.cxx
 CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj: CMakeFiles/libBV.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\AviRead.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\AviRead.cxx.obj -c E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\AviRead.cxx
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj"
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\AviRead.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\AviRead.cxx.obj -c C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\AviRead.cxx
 
 CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.i"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\AviRead.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\AviRead.cxx.i
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\AviRead.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\AviRead.cxx.i
 
 CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.s"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\AviRead.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\AviRead.cxx.s
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\AviRead.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\AviRead.cxx.s
 
 CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj: CMakeFiles/libBV.dir/flags.make
 CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj: CMakeFiles/libBV.dir/includes_CXX.rsp
-CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj: E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/AviWrite.cxx
+CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj: C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/AviWrite.cxx
 CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj: CMakeFiles/libBV.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\AviWrite.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\AviWrite.cxx.obj -c E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\AviWrite.cxx
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj"
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\AviWrite.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\AviWrite.cxx.obj -c C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\AviWrite.cxx
 
 CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.i"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\AviWrite.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\AviWrite.cxx.i
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\AviWrite.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\AviWrite.cxx.i
 
 CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.s"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\AviWrite.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\AviWrite.cxx.s
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\AviWrite.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\AviWrite.cxx.s
 
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj: CMakeFiles/libBV.dir/flags.make
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj: CMakeFiles/libBV.dir/includes_CXX.rsp
-CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj: E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/BmpRead.cxx
+CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj: C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/BmpRead.cxx
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj: CMakeFiles/libBV.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\BmpRead.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\BmpRead.cxx.obj -c E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\BmpRead.cxx
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj"
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\BmpRead.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\BmpRead.cxx.obj -c C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\BmpRead.cxx
 
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.i"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\BmpRead.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\BmpRead.cxx.i
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\BmpRead.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\BmpRead.cxx.i
 
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.s"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\BmpRead.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\BmpRead.cxx.s
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\BmpRead.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\BmpRead.cxx.s
 
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj: CMakeFiles/libBV.dir/flags.make
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj: CMakeFiles/libBV.dir/includes_CXX.rsp
-CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj: E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/BmpWrite.cxx
+CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj: C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/BmpWrite.cxx
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj: CMakeFiles/libBV.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\BmpWrite.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\BmpWrite.cxx.obj -c E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\BmpWrite.cxx
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj"
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\BmpWrite.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\BmpWrite.cxx.obj -c C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\BmpWrite.cxx
 
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.i"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\BmpWrite.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\BmpWrite.cxx.i
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\BmpWrite.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\BmpWrite.cxx.i
 
 CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.s"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\BmpWrite.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\BmpWrite.cxx.s
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\BmpWrite.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\BmpWrite.cxx.s
 
 CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj: CMakeFiles/libBV.dir/flags.make
 CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj: CMakeFiles/libBV.dir/includes_CXX.rsp
-CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj: E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/FFT.cxx
+CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj: C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/FFT.cxx
 CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj: CMakeFiles/libBV.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\FFT.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\FFT.cxx.obj -c E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\FFT.cxx
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj"
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\FFT.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\FFT.cxx.obj -c C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\FFT.cxx
 
 CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.i"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\FFT.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\FFT.cxx.i
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\FFT.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\FFT.cxx.i
 
 CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.s"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\FFT.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\FFT.cxx.s
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\FFT.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\FFT.cxx.s
 
 CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj: CMakeFiles/libBV.dir/flags.make
 CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj: CMakeFiles/libBV.dir/includes_CXX.rsp
-CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj: E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/FileIO.cxx
+CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj: C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/FileIO.cxx
 CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj: CMakeFiles/libBV.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\FileIO.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\FileIO.cxx.obj -c E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\FileIO.cxx
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj"
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj -MF CMakeFiles\libBV.dir\lib\libBV\lib\FileIO.cxx.obj.d -o CMakeFiles\libBV.dir\lib\libBV\lib\FileIO.cxx.obj -c C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\FileIO.cxx
 
 CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.i"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\FileIO.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\FileIO.cxx.i
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\FileIO.cxx > CMakeFiles\libBV.dir\lib\libBV\lib\FileIO.cxx.i
 
 CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.s"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\lib\libBV\lib\FileIO.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\FileIO.cxx.s
+	C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\quint\Documents\Studium\HSOS\QRScanner\lib\libBV\lib\FileIO.cxx -o CMakeFiles\libBV.dir\lib\libBV\lib\FileIO.cxx.s
 
 # Object files for target libBV
 libBV_OBJECTS = \
@@ -212,7 +212,7 @@ liblibBV.a: CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj
 liblibBV.a: CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj
 liblibBV.a: CMakeFiles/libBV.dir/build.make
 liblibBV.a: CMakeFiles/libBV.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX static library liblibBV.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX static library liblibBV.a"
 	$(CMAKE_COMMAND) -P CMakeFiles\libBV.dir\cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\libBV.dir\link.txt --verbose=$(VERBOSE)
 
@@ -225,6 +225,6 @@ CMakeFiles/libBV.dir/clean:
 .PHONY : CMakeFiles/libBV.dir/clean
 
 CMakeFiles/libBV.dir/depend:
-	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" E:\Unity\UnityProjects\QRScanner E:\Unity\UnityProjects\QRScanner E:\Unity\UnityProjects\QRScanner\cmake-build-debug E:\Unity\UnityProjects\QRScanner\cmake-build-debug E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles\libBV.dir\DependInfo.cmake "--color=$(COLOR)"
+	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\quint\Documents\Studium\HSOS\QRScanner C:\Users\quint\Documents\Studium\HSOS\QRScanner C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug\CMakeFiles\libBV.dir\DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/libBV.dir/depend
 
