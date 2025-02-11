@@ -19,6 +19,7 @@
 
 #define K 5                 // Startwert fuer die Suche der Grundfrequenz
 #define SE_GROESSE 3
+#define EPSILON  1e-9
 #define INVERTED true
 #define PI 3.14159265358979323846
 #define DP  4           // Genauigkeit fuer double-Ausgaben
@@ -36,6 +37,7 @@ struct Line {
     double rho;
     double theta;
 };
+string filepath;
 
 void
 AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
@@ -49,13 +51,17 @@ ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props, Img<RGB_P
     Vector bottomRight;
     AssignProps(props[0], props[1], props[2], topLeft, topRight, bottomLeft);
 
+    int avgWidth =
+            int(props[0].x_max - props[0].x_min + props[1].x_max - props[1].x_min + props[2].x_max - props[2].x_min) /
+            3;
+    avgWidth *= 1.5; //wiggle room
     bottomRight = bottomLeft + (topRight - topLeft);
     ObjectProperties obj;
     obj.center = bottomRight;
-    obj.x_min = bottomRight.X - 10;
-    obj.x_max = bottomRight.X + 10;
-    obj.y_min = bottomRight.Y - 10;
-    obj.y_max = bottomRight.Y + 10;
+    obj.x_min = bottomRight.X - avgWidth;
+    obj.x_max = bottomRight.X + avgWidth;
+    obj.y_min = bottomRight.Y - avgWidth;
+    obj.y_max = bottomRight.Y + avgWidth;
     return obj;
 }
 
@@ -79,11 +85,11 @@ void Visualize(const vector<Vector> &points) {
 //        for (unsigned int y = obj.y_min; y <= obj.y_max; y++) {
 //            for (unsigned int x = obj.x_min; x <= obj.x_max; x++) {
 //                if (y == obj.y_min || y == obj.y_max || x == obj.x_min || x == obj.x_max) {
-        vis[point.Y][point.X] = RGB_Pixel(255, 0, 0);
-        vis[point.Y - 1][point.X] = RGB_Pixel(255, 0, 0);
-        vis[point.Y + 1][point.X] = RGB_Pixel(255, 0, 0);
-        vis[point.Y][point.X - 1] = RGB_Pixel(255, 0, 0);
-        vis[point.Y][point.X + 1] = RGB_Pixel(255, 0, 0);
+        vis[point.Y][point.X] = RGB_Pixel(255, 0, 255);
+        vis[point.Y - 1][point.X] = RGB_Pixel(255, 0, 255);
+        vis[point.Y + 1][point.X] = RGB_Pixel(255, 0, 255);
+        vis[point.Y][point.X - 1] = RGB_Pixel(255, 0, 255);
+        vis[point.Y][point.X + 1] = RGB_Pixel(255, 0, 255);
 
 //                    vis[obj.center.Y][obj.center.X] = RGB_Pixel(255, 0, 0);
     }
@@ -94,7 +100,7 @@ void Visualize(const vector<Vector> &points) {
 
 
     try {
-        filename = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\viz.bmp";
+        filename = filepath + "_viz.bmp";
         BmpWrite(filename.c_str(), vis);
         cout << "Schreibe viz Bild: " << filename << endl;
     }
@@ -494,10 +500,9 @@ bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const Object
 
 }
 
-void
-AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
-            Vector &topRight,
-            Vector &bottomLeft) {
+void AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
+                 Vector &topRight,
+                 Vector &bottomLeft) {
     Vector av = a.center;
     Vector bv = b.center;
     Vector cv = c.center;
@@ -545,6 +550,61 @@ AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectPr
             topLeft = av;
             topRight = cv;
             bottomLeft = bv;
+        }
+    }
+}
+
+void AssignPropstoProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c,
+                        ObjectProperties &topLeft,
+                        ObjectProperties &topRight,
+                        ObjectProperties &bottomLeft) {
+    Vector av = a.center;
+    Vector bv = b.center;
+    Vector cv = c.center;
+
+// Step 1: Calculate distances between all points
+    float d1 = (bv - av).length(); // Distance AB
+    float d2 = (cv - av).length(); // Distance AC
+    float d3 = (cv - bv).length(); // Distance BC
+
+
+    // Step 2: Identify the hypotenuse
+    float max_d = max(d1, max(d2, d3));
+    Vector midPoint;
+
+    if (max_d == d1) { // AB is the hypotenuse
+        midPoint = (av + bv) * 0.5f;
+        if ((cv - midPoint).length() > (av - midPoint).length()) {
+            topLeft = c;
+            topRight = b;
+            bottomLeft = a;
+        } else {
+            topLeft = c;
+            topRight = a;
+            bottomLeft = b;
+        }
+
+    } else if (max_d == d2) { // AC is the hypotenuse
+        midPoint = (av + cv) * 0.5f;
+        if ((bv - midPoint).length() > (av - midPoint).length()) {
+            topLeft = b;
+            topRight = a;
+            bottomLeft = c;
+        } else {
+            topLeft = b;
+            topRight = c;
+            bottomLeft = a;
+        }
+    } else if (max_d == d3) { // BC is the hypotenuse
+        midPoint = (bv + cv) * 0.5f;
+        if ((av - midPoint).length() > (bv - midPoint).length()) {
+            topLeft = a;
+            topRight = b;
+            bottomLeft = c;
+        } else {
+            topLeft = a;
+            topRight = c;
+            bottomLeft = b;
         }
     }
 }
@@ -1099,20 +1159,26 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
 //
 //}
 
-vector<Line> ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rho_max, unsigned int theta_dim, unsigned int threshold) {
+vector<Line>
+ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rho_max, unsigned int theta_dim,
+                      unsigned int threshold) {
     vector<Line> detected_lines;
 
     for (unsigned int rho = 0; rho < hough.size(); ++rho) {
         for (unsigned int theta = 0; theta < theta_dim; ++theta) {
-            if (hough[rho][theta] > threshold) {
-                detected_lines.push_back({(double)(rho - rho_max), theta * M_PI / 180.0});
+            if (hough[rho][theta] > threshold &&
+                ((theta < 10 || (theta > 80 && theta < 100) || (theta > 170 && theta < 190) ||
+                  (theta > 260 && theta < 280) || theta > 350))) {
+                detected_lines.push_back({(double) (rho - rho_max), theta * M_PI / 180.0});
             }
         }
     }
 
     return detected_lines;
 }
+
 void DrawLines(Img<bool> &image, const vector<Line> &lines) {
+    cout << "Drawing lines "<< lines.size() << endl;
     const unsigned int width = image.Width();
     const unsigned int height = image.Height();
 
@@ -1132,20 +1198,260 @@ void DrawLines(Img<bool> &image, const vector<Line> &lines) {
     }
 }
 
-vector<Line> HoughTransform(const Img<bool> &input) {
+bool doesLineIntersectBox(const Line &line, const ObjectProperties &box) {
+    double error_margin = 10.0;
+    double rho = line.rho, theta = line.theta;
+    double cosTheta = cos(theta), sinTheta = sin(theta);
 
-    const unsigned int width = input.Width();
-    const unsigned int height = input.Height();
+    // Expand bounding box by error margin
+    double x_min = box.x_min - error_margin;
+    double x_max = box.x_max + error_margin;
+    double y_min = box.y_min - error_margin;
+    double y_max = box.y_max + error_margin;
 
-    const unsigned int rho_max = static_cast<unsigned int>(sqrt(width * width + height * height));
+    // Handle vertical lines separately
+    if (std::abs(sinTheta) < 1e-6) {
+        double x = rho / cosTheta;
+        return (x >= x_min && x <= x_max);
+    }
+
+    // Handle horizontal lines separately
+    if (std::abs(cosTheta) < 1e-6) {
+        double y = rho / sinTheta;
+        return (y >= y_min && y <= y_max);
+    }
+
+    // Compute intersections
+    double y_left = (-cosTheta / sinTheta) * x_min + (rho / sinTheta);
+    double y_right = (-cosTheta / sinTheta) * x_max + (rho / sinTheta);
+    double x_top = (-sinTheta / cosTheta) * y_min + (rho / cosTheta);
+    double x_bottom = (-sinTheta / cosTheta) * y_max + (rho / cosTheta);
+
+    // Check if any intersection is inside the expanded box
+    bool intersectsVertically = (y_left >= y_min && y_left <= y_max) ||
+                                (y_right >= y_min && y_right <= y_max);
+    bool intersectsHorizontally = (x_top >= x_min && x_top <= x_max) ||
+                                  (x_bottom >= x_min && x_bottom <= x_max);
+
+    return intersectsVertically || intersectsHorizontally;
+}
+
+bool PointOnLine(const Line &line, const Vector &point) {
+    double rho = line.rho, theta = line.theta;
+    double cosTheta = cos(theta), sinTheta = sin(theta);
+
+    double distance = point.X * cosTheta + point.Y * sinTheta - rho;
+    return std::abs(distance) < 1;
+}
+
+bool vectorInsideBoxAroundVector(const Vector &v, const Vector &center, const float &error_margin = 50.0) {
+
+    return (v.X >= center.X - error_margin && v.X <= center.X + error_margin &&
+            v.Y >= center.Y - error_margin && v.Y <= center.Y + error_margin);
+}
+
+vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProperties> &qrCodeL) {
+    //detect the lines that reprsent the borders of the code.
+    //first discard distant lines
+    ObjectProperties topLeft, topRight, bottomLeft;
+    AssignPropstoProps(qrCodeL[0], qrCodeL[1], qrCodeL[2], topLeft, topRight, bottomLeft);
+    ObjectProperties bottomRight = qrCodeL[3];
+    vector<Line> filteredLines;
+    vector<Vector> intersectionPointsTopLeft;
+    vector<Vector> intersectionPointsTopRight;
+    vector<Vector> intersectionPointsBottomLeft;
+    vector<Vector> intersectionPointsBottomRight;
+    for (auto &line: lines) {
+        if (doesLineIntersectBox(line, qrCodeL[0]) || doesLineIntersectBox(line, qrCodeL[1]) ||
+            doesLineIntersectBox(line, qrCodeL[2])) {
+            filteredLines.push_back(line);
+        }
+
+    }
+
+    vector<Vector> intersectionPoints;
+
+    for (int i = 0; i < filteredLines.size(); i++) {
+        for (int j = i + 1; j < filteredLines.size(); j++) {
+            Line L1 = filteredLines[i];
+            Line L2 = filteredLines[j];
+            double A1 = cos(L1.theta), B1 = sin(L1.theta), C1 = L1.rho;
+            double A2 = cos(L2.theta), B2 = sin(L2.theta), C2 = L2.rho;
+
+
+
+            // Compute determinant
+            double det = A1 * B2 - A2 * B1;
+            if (fabs(det) < 1e-6) continue; // Parallel lines
+
+            // Solve for x, y
+            double x = (C1 * B2 - C2 * B1) / det;
+            double y = (A1 * C2 - A2 * C1) / det;
+
+            if (x >= 0 && x <= CurrentImageWidth && y >= 0 && y <= CurrentImageHeight) {
+                Vector intersectionPoint = Vector(x, y, 0);
+                intersectionPoints.push_back(intersectionPoint);
+                if (vectorInsideBoxAroundVector(intersectionPoint, topLeft.center, 100.0)) {
+                    intersectionPointsTopLeft.push_back(intersectionPoint);
+                }
+                if (vectorInsideBoxAroundVector(intersectionPoint, topRight.center, 100.0)) {
+                    intersectionPointsTopRight.push_back(intersectionPoint);
+                }
+                if (vectorInsideBoxAroundVector(intersectionPoint, bottomLeft.center, 100.0)) {
+                    intersectionPointsBottomLeft.push_back(intersectionPoint);
+                }
+                if (vectorInsideBoxAroundVector(intersectionPoint, bottomRight.center, 150.0)) {
+                    intersectionPointsBottomRight.push_back(intersectionPoint);
+                }
+            }
+        }
+    }
+
+    vector<Line> leftLines, rightLines, topLines, bottomLines;
+    for (auto &line: filteredLines) {
+
+        if (doesLineIntersectBox(line, topLeft) && doesLineIntersectBox(line, bottomLeft)) {
+            leftLines.push_back(line);
+        }
+        if (doesLineIntersectBox(line, topLeft) && doesLineIntersectBox(line, topRight)) {
+            topLines.push_back(line);
+        }
+        if (doesLineIntersectBox(line, topRight) && doesLineIntersectBox(line, bottomRight)) {
+            rightLines.push_back(line);
+        }
+        if (doesLineIntersectBox(line, bottomLeft) && doesLineIntersectBox(line, bottomRight)) {
+            bottomLines.push_back(line);
+        }
+
+    }
+
+    Vector leftMostIntersectionTop(CurrentImageWidth, 0, 0), leftMostIntersectionBottom(CurrentImageWidth, 0, 0);
+    Vector topMostIntersectionLeft, topMostIntersectionRight;
+    Vector bottomMostIntersectionLeft(0, CurrentImageHeight, 0), bottomMostIntersectionRight(0, CurrentImageHeight, 0);
+    Vector rightMostIntersectionTop, rightMostIntersectionBottom;
+
+    for (auto &point: intersectionPointsTopLeft) {
+        if (point.X < leftMostIntersectionTop.X) {
+            leftMostIntersectionTop = point;
+        }
+        if (point.Y > topMostIntersectionLeft.Y) {
+            topMostIntersectionLeft = point;
+        }
+    }
+    for (auto &point: intersectionPointsBottomLeft) {
+        if (point.X < leftMostIntersectionBottom.X) {
+            leftMostIntersectionBottom = point;
+        }
+        if (point.Y < bottomMostIntersectionLeft.Y) {
+            bottomMostIntersectionLeft = point;
+        }
+    }
+    for (auto &point: intersectionPointsBottomRight) {
+        if (point.Y < bottomMostIntersectionRight.Y) {
+            bottomMostIntersectionRight = point;
+        }
+        if (point.X > rightMostIntersectionBottom.X) {
+            rightMostIntersectionBottom = point;
+        }
+    }
+    for (auto &point: intersectionPointsTopRight) {
+        if (point.Y > topMostIntersectionRight.Y) {
+            topMostIntersectionRight = point;
+        }
+        if (point.X > rightMostIntersectionTop.X) {
+            rightMostIntersectionTop = point;
+        }
+    }
+
+
+    Visualize(vector<Vector>{leftMostIntersectionTop, leftMostIntersectionBottom, topMostIntersectionLeft,
+                             topMostIntersectionRight,
+                             bottomMostIntersectionLeft, bottomMostIntersectionRight});
+
+    Line leftMostLine;
+    for (auto &line: leftLines) {
+        if (PointOnLine(line, leftMostIntersectionTop) && PointOnLine(line, leftMostIntersectionBottom)) {
+            leftMostLine = line;
+        }
+    }
+    Line topMostLine;
+    for (auto &line: topLines) {
+        if (PointOnLine(line, topMostIntersectionLeft) && PointOnLine(line, topMostIntersectionRight)) {
+            topMostLine = line;
+        }
+    }
+    Line bottomMostLine;
+    for (auto &line: bottomLines) {
+        if (PointOnLine(line, bottomMostIntersectionLeft) && PointOnLine(line, bottomMostIntersectionRight)) {
+            bottomMostLine = line;
+        }
+    }
+    Line rightMostLine;
+    for (auto &line: rightLines) {
+        if (PointOnLine(line, rightMostIntersectionTop) && PointOnLine(line, rightMostIntersectionBottom)) {
+            rightMostLine = line;
+        }
+    }
+
+
+    vector<Line> edges = {leftMostLine, topMostLine, bottomMostLine, rightMostLine};
+    Img<bool> hough_vis(CurrentImageWidth, CurrentImageHeight);
+    for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
+        for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
+            hough_vis[y][x] = false;
+        }
+    }
+    DrawLines(hough_vis, filteredLines);
+    try {
+        string t = filepath + "_houghtest.bmp";
+        BmpWrite(t.c_str(), hough_vis);
+        cout << "Schreibe" << t << endl;
+    } catch (const char *s) {
+        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
+    }
+
+    vector<Vector> corners;
+    for (int i = 0; i < edges.size(); i++) {
+        for (int j = i + 1; j < edges.size(); j++) {
+            Line L1 = edges[i];
+            Line L2 = edges[j];
+            double A1 = cos(L1.theta), B1 = sin(L1.theta), C1 = L1.rho;
+            double A2 = cos(L2.theta), B2 = sin(L2.theta), C2 = L2.rho;
+
+
+
+            // Compute determinant
+            double det = A1 * B2 - A2 * B1;
+            if (fabs(det) < 1e-6) continue; // Parallel lines
+
+            // Solve for x, y
+            double x = (C1 * B2 - C2 * B1) / det;
+            double y = (A1 * C2 - A2 * C1) / det;
+
+            if (x >= 0 && x <= CurrentImageWidth && y >= 0 && y <= CurrentImageHeight) {
+                Vector intersectionPoint = Vector(x, y, 0);
+                corners.push_back(intersectionPoint);
+
+            }
+
+        }
+    }
+    return corners;
+}
+
+vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectProperties> &qrCodeL) {
+
+
+    const unsigned int rho_max = static_cast<unsigned int>(sqrt(
+            CurrentImageWidth * CurrentImageWidth + CurrentImageHeight * CurrentImageHeight));
     const unsigned int rho_dim = 2 * rho_max + 1;
     const unsigned int theta_dim = 360;
 
     vector<vector<unsigned int>> hough(rho_dim, vector<unsigned int>(theta_dim, 0));
 
     // Hough Transform
-    for (unsigned int y = 0; y < height; ++y) {
-        for (unsigned int x = 0; x < width; ++x) {
+    for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
+        for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
             if (input[y][x]) {
                 for (int theta = 0; theta < theta_dim; ++theta) {
                     double radian = theta * M_PI / 180.0;
@@ -1162,79 +1468,114 @@ vector<Line> HoughTransform(const Img<bool> &input) {
 
     // Find strongest lines
     vector<Line> lines = ExtractStrongestLines(hough, rho_max, theta_dim, 145);
+    vector<Vector> corners = refineQRBounds(lines, qrCodeL);
 
-    // Draw lines on image
-    Img<bool> hough_image(width, height);
-    DrawLines(hough_image, lines);
 
-    try {
-        string t = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\hough.bmp";
-        BmpWrite(t.c_str(), hough_image);
-        cout << "Schreibe hough.bmp" << endl;
-    } catch (const char *s) {
-        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
-    }
 
-    return lines;
-    // akkumulatorbild
-
-//    Img<unsigned char> hough_vis(rho_dim, theta_dim);
-//    unsigned int max_votes = 0;
-//    for (unsigned int rho = 0; rho < rho_dim; ++rho) {
-//        for (unsigned int theta = 0; theta < theta_dim; ++theta) {
-//            hough_vis[rho][theta] = static_cast<unsigned char>(hough[rho][theta]);
-//            max_votes = std::max(max_votes, hough[rho][theta]);
-//        }
-//    }
-//
-//    try {
-//        string t = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\houghspektrum.bmp";
-//        BmpWrite(t.c_str(), hough_vis);
-//        cout << "Schreibe houghspektrum.bmp" << endl;
-//    } catch (const char *s) {
-//        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
-//    }
-}
-vector<ObjectProperties> getQRCornernsFromLines (vector<Line> lines, vector<ObjectProperties> qrCodeL) {
-    vector<ObjectProperties> qrCorners;
-
-    //get lines closest to the 3 L shapes
-    Line topLine = lines[0];
-    Line leftLine = lines[0];
-    Line rightLine = lines[0];
-
-    for (Line line : lines) {
-        if (line.theta > 80 && line.theta < 100) {
-            if (line.rho > topLine.rho) {
-                topLine = line;
-            }
-        }
-        if (line.theta > 170 && line.theta < 190) {
-            if (line.rho > leftLine.rho) {
-                leftLine = line;
-            }
-        }
-        if (line.theta > 260 && line.theta < 280) {
-            if (line.rho > rightLine.rho) {
-                rightLine = line;
-            }
-        }
-    }
-
-    Img<bool> corners(CurrentImageWidth, CurrentImageHeight);
-    DrawLines(corners, {topLine, leftLine, rightLine});
-    try {
-        string t = "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\corners.bmp";
-        BmpWrite(t.c_str(), corners);
-        cout << "Schreibe corners.bmp" << endl;
-    } catch (const char *s) {
-        cerr << "Fehler beim Schreiben von corners.bmp: " << strerror(errno) << endl;
-    }
-
-    return {};
+    return corners;
 }
 
-//void
+void solveGaussianElimination(float A[8][8], float B[8], float h[8]) {
+    for (int i = 0; i < 8; i++) {
+        // Find the row with the largest pivot and swap rows
+        int maxRow = i;
+        for (int k = i + 1; k < 8; k++) {
+            if (std::fabs(A[k][i]) > std::fabs(A[maxRow][i])) {
+                maxRow = k;
+            }
+        }
+
+        // Swap rows in A and B
+        for (int j = 0; j < 8; j++) {
+            std::swap(A[i][j], A[maxRow][j]);
+        }
+        std::swap(B[i], B[maxRow]);
+
+        // Check for singularity
+        if (std::fabs(A[i][i]) < EPSILON) {
+            std::cerr << "Matrix is singular or nearly singular!\n";
+            return;
+        }
+
+        // Make diagonal element 1 by dividing row by pivot
+        float pivot = A[i][i];
+        for (int j = 0; j < 8; j++) {
+            A[i][j] /= pivot;
+        }
+        B[i] /= pivot;
+
+        // Make all elements below the pivot 0
+        for (int k = i + 1; k < 8; k++) {
+            float factor = A[k][i];
+            for (int j = 0; j < 8; j++) {
+                A[k][j] -= factor * A[i][j];
+            }
+            B[k] -= factor * B[i];
+        }
+    }
+
+    // Back-substitution to solve for h
+    for (int i = 7; i >= 0; i--) {
+        h[i] = B[i];
+        for (int j = i + 1; j < 8; j++) {
+            h[i] -= A[i][j] * h[j];
+        }
+    }
+}
+
+Matrix computeHomography(const vector<Vector> &src, const vector<Vector> &dst) {
+    float A[8][8] = {0};
+    float B[8] = {0};
+
+    for (int i = 0; i < 4; i++) {
+        float x = src[i].X, y = src[i].Y;
+        float x_prime = dst[i].X, y_prime = dst[i].Y;
+
+        A[2 * i][0] = x;
+        A[2 * i][1] = y;
+        A[2 * i][2] = 1;
+        A[2 * i][6] = -x * x_prime;
+        A[2 * i][7] = -y * x_prime;
+        B[2 * i] = x_prime;
+
+        A[2 * i + 1][3] = x;
+        A[2 * i + 1][4] = y;
+        A[2 * i + 1][5] = 1;
+        A[2 * i + 1][6] = -x * y_prime;
+        A[2 * i + 1][7] = -y * y_prime;
+        B[2 * i + 1] = y_prime;
+    }
+
+    // Solve Ax = B using Gaussian elimination (assume function exists)
+    float h[8] = {0};
+    solveGaussianElimination(A, B, h); // Implement this separately
+
+    return Matrix(
+            h[0], h[1], h[2], 0,
+            h[3], h[4], h[5], 0,
+            h[6], h[7], 1, 0,
+            0, 0, 0, 1
+    );
+}
+
+Img<bool> TransformImage(Img<bool> img, Matrix matrix) {
+    Img<bool> transformedImage(img.Width(), img.Height());
+
+    for (unsigned int y = 0; y < img.Height(); ++y) {
+        for (unsigned int x = 0; x < img.Width(); ++x) {
+            Vector v = Vector(x, y, 0);
+            Vector transformed = matrix * v;
+            int x_prime = static_cast<int>(transformed.X);
+            int y_prime = static_cast<int>(transformed.Y);
+
+            if (x_prime >= 0 && x_prime < img.Width() && y_prime >= 0 && y_prime < img.Height()) {
+                transformedImage[y][x] = img[y_prime][x_prime];
+            }
+        }
+    }
+
+    return transformedImage;
+}
 
 int main(int argc, char *argv[]) {
     string files[] = {
@@ -1242,24 +1583,24 @@ int main(int argc, char *argv[]) {
 //                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_90\\test_90",
 //                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
 //                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",
-            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb_rotated\\ffb_r"
+//            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb_rotated\\ffb_r"
     };
 //    string files2[] = {
 //                       "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled"};
     string files3[] = {
-//        "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
+        "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
 //        "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90",
 //        "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r",
 //        "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
-//        "E:\\Unity\\UnityProjects\\QRScanner\\ffb_rotated\\ffb_r"
+            "E:\\Unity\\UnityProjects\\QRScanner\\ffb_rotated\\ffb_r"
     };
     string t;
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test\\test";
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90";
     //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r";
-    for (string &filename: files) {
+    for (string &filename: files3) {
 
-
+        filepath = filename.substr(0, filename.find_last_of("\\"));
         // Bild einlesen
         Img<RGB_Pixel> rgb;
         try {
@@ -1612,37 +1953,32 @@ int main(int argc, char *argv[]) {
             return -1;
         }
 
-        Img<bool> hough = Img<bool>(width, height);
-        vector<Line> lines= HoughTransform(edges_rotated);
-        getQRCornernsFromLines(lines, qrCodeL);
+        vector<Vector> corners = HoughTransform(edges_rotated, qrCodeL);
 
+        //TODO: DO distortion correction
+        std::vector<Vector> correctedCorners = {
+                {0, 0, 1}, {255, 0, 1}, {255, 255, 1}, {0, 255, 1}
+        };
+        Matrix homography = computeHomography(corners,correctedCorners);
 
-//    Img<unsigned char> cropped_bw = ConvImg<unsigned char, RGB_Pixel>(cropped);
-//    Img<bool> binary_cropped = optimal_threshold(cropped_bw);
-//    try {
-//        t = filename + "_cropped_binary.bmp";
-//        BmpWrite(t.c_str(), binary_cropped);
-//        cout << "Schreibe " << t << endl;
-//    } catch (const char *s) {
-//        cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
-//        return -1;
-//    }
-//    // Objektbild erzeugen, in dem die Objekte gemaess ihrer Groesse eingefaerbt sind
-//    // (Einfaerbung 0:blau, Mitte:gruen, Maximum:rot)
-//    vector<RGB_Pixel> GroesseFarben = Values2ColorVector<unsigned int>(Objektgroessen);
-//    Img<RGB_Pixel> GroesseAnzeige = Labelimage_to_RGB(Labelbild, GroesseFarben);
-//    try {
-//        t = filename + "_Groesse.bmp";
-//        BmpWrite(t.c_str(), GroesseAnzeige);
-//        cout << "Schreibe " << t << endl;
-//    } catch (const char *s) {
-//        cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
-//        return -1;
-//    }
+        Img<bool> transformed = TransformImage(binary_rotated, homography);
+
+        try {
+            t = filename + "_transformed.bmp";
+            BmpWrite(t.c_str(), transformed);
+            cout << "Schreibe " << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+            return -1;
+        }
+
 
 
     }
     return 0;
 
 }
+
+
+
 
