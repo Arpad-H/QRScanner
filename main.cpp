@@ -1178,6 +1178,7 @@ ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rh
 }
 
 void DrawLines(Img<bool> &image, const vector<Line> &lines) {
+    cout << "Drawing lines "<< lines.size() << endl;
     const unsigned int width = image.Width();
     const unsigned int height = image.Height();
 
@@ -1394,6 +1395,20 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
 
 
     vector<Line> edges = {leftMostLine, topMostLine, bottomMostLine, rightMostLine};
+    Img<bool> hough_vis(CurrentImageWidth, CurrentImageHeight);
+    for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
+        for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
+            hough_vis[y][x] = false;
+        }
+    }
+    DrawLines(hough_vis, filteredLines);
+    try {
+        string t = filepath + "_houghtest.bmp";
+        BmpWrite(t.c_str(), hough_vis);
+        cout << "Schreibe" << t << endl;
+    } catch (const char *s) {
+        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
+    }
 
     vector<Vector> corners;
     for (int i = 0; i < edges.size(); i++) {
@@ -1454,20 +1469,7 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
     // Find strongest lines
     vector<Line> lines = ExtractStrongestLines(hough, rho_max, theta_dim, 145);
     vector<Vector> corners = refineQRBounds(lines, qrCodeL);
-//    Img<bool> hough_vis(CurrentImageWidth, CurrentImageHeight);
-//    for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
-//        for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
-//            hough_vis[y][x] = false;
-//        }
-//    }
-//    DrawLines(hough_vis, lines2);
-//    try {
-//        string t = filepath + "_houghtest.bmp";
-//        BmpWrite(t.c_str(), hough_vis);
-//        cout << "Schreibe" << t << endl;
-//    } catch (const char *s) {
-//        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
-//    }
+
 
 
     return corners;
@@ -1586,7 +1588,7 @@ int main(int argc, char *argv[]) {
 //    string files2[] = {
 //                       "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled"};
     string files3[] = {
-//        "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
+        "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
 //        "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90",
 //        "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r",
 //        "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
