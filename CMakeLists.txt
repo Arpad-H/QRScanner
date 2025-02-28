@@ -11,6 +11,8 @@ add_executable(QRScanner main.cpp
         Entzerren.h
         Matrix.cpp
         Matrix.h
+        QRdecoder.cpp
+        QRdecoder.h
 )
 add_library(libBV STATIC lib/libBV/lib/Grafik.cxx
         lib/libBV/lib/SimpleFont.cxx
