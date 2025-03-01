@@ -1,1 +1,1 @@
--IE:/Unity/UnityProjects/QRScanner/lib/libBV/include
+-IE:/Unity/UnityProjects/QRScanner/lib/libBV/include -isystem "C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3"

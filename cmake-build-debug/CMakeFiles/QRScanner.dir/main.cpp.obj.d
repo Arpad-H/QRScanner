@@ -223,4 +223,219 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/tr1/riemann_zeta.tcc \
  E:\Unity\UnityProjects\QRScanner\Vector.h \
  E:\Unity\UnityProjects\QRScanner\Entzerren.h \
- E:\Unity\UnityProjects\QRScanner\Matrix.h
+ E:\Unity\UnityProjects\QRScanner\Matrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/Dense \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/Core \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/DisableStupidWarnings.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/Macros.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/ConfigureVectorization.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/mmintrin.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/emmintrin.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/xmmintrin.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/pmmintrin.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/mwaitintrin.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/MKL_support.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/cassert \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/x86_64-w64-mingw32/include/assert.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/functional \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/std_function.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/unordered_map \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/unordered_map.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/hashtable.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/hashtable_policy.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/enable_special_members.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/array \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/climits \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/Constants.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/Meta.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/cstdint \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stdint.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/x86_64-w64-mingw32/include/stdint.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/ForwardDeclarations.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/StaticAssert.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/XprHelper.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/Memory.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/IntegralConstant.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/SymbolicIndex.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/NumTraits.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/MathFunctions.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/GenericPacketMath.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/MathFunctionsImpl.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/ConjHelper.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/Half.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/BFloat16.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/TypeCasting.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/SSE/PacketMath.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/SSE/Complex.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/Settings.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/functors/TernaryFunctors.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/functors/BinaryFunctors.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/functors/UnaryFunctors.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/functors/NullaryFunctors.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/functors/StlFunctors.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/functors/AssignmentFunctors.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/IndexedViewHelper.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/ReshapedHelper.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/ArithmeticSequence.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/IO.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/DenseCoeffsBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/DenseBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/BlockMethods.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/IndexedViewMethods.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/IndexedViewMethods.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/ReshapedMethods.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/ReshapedMethods.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/MatrixBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/CommonCwiseBinaryOps.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/EigenBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Product.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/CoreEvaluators.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/AssignEvaluator.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Assign.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/ArrayBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/BlasUtil.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/DenseStorage.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/NestByValue.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/ReturnByValue.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/NoAlias.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/PlainObjectBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Matrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Array.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/CwiseTernaryOp.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/CwiseBinaryOp.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/CwiseUnaryOp.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/CwiseNullaryOp.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/CwiseUnaryView.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Dot.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/StableNorm.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Stride.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/MapBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Map.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Ref.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Block.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/VectorBlock.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/IndexedView.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Reshaped.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Transpose.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/DiagonalMatrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Diagonal.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/DiagonalProduct.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Redux.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Visitor.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Fuzzy.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Swap.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/CommaInitializer.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/GeneralProduct.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Solve.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Inverse.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/SolverBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/PermutationMatrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Transpositions.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/TriangularMatrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/SelfAdjointView.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/Parallelizer.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/atomic \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/atomic_base.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/atomic_lockfree_defines.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/atomic_wait.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/std_mutex.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/ProductEvaluators.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/GeneralMatrixVector.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/SolveTriangular.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/SelfadjointProduct.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/TriangularMatrixVector.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/products/TriangularSolverVector.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/BandMatrix.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/CoreIterators.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/ConditionEstimator.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/BooleanRedux.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Select.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/VectorwiseOp.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/PartialReduxEvaluator.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Random.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Replicate.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/Reverse.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/ArrayWrapper.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/StlIterators.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/GlobalFunctions.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/LU \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/misc/Kernel.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/misc/Image.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/LU/FullPivLU.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/LU/PartialPivLU.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/LU/Determinant.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/LU/InverseImpl.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/LU/arch/InverseSize4.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/Cholesky \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/Jacobi \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Jacobi/Jacobi.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Cholesky/LLT.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Cholesky/LDLT.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/QR \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/Householder \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Householder/Householder.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Householder/HouseholderSequence.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Householder/BlockHouseholder.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/QR/HouseholderQR.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/QR/FullPivHouseholderQR.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/QR/ColPivHouseholderQR.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/QR/CompleteOrthogonalDecomposition.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/SVD \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/misc/RealSvd2x2.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/SVD/UpperBidiagonalization.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/SVD/SVDBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/SVD/JacobiSVD.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/SVD/BDCSVD.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/Geometry \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/OrthoMethods.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/EulerAngles.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/Homogeneous.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/RotationBase.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/Rotation2D.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/Quaternion.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/AngleAxis.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/Transform.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/Translation.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/Scaling.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/Hyperplane.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/ParametrizedLine.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/AlignedBox.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/Umeyama.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Geometry/arch/Geometry_SIMD.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/Eigenvalues \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/Tridiagonalization.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/RealSchur.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/HessenbergDecomposition.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/EigenSolver.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/RealSchur.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/SelfAdjointEigenSolver.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/Tridiagonalization.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/GeneralizedSelfAdjointEigenSolver.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/HessenbergDecomposition.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/ComplexSchur.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/ComplexSchur.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/RealQZ.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/RealQZ.h \
+ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
+ E:\Unity\UnityProjects\QRScanner\QRdecoder.h

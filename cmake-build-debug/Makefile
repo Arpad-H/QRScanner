@@ -189,6 +189,30 @@ Matrix.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/Matrix.cpp.s
 .PHONY : Matrix.cpp.s
 
+QRdecoder.obj: QRdecoder.cpp.obj
+.PHONY : QRdecoder.obj
+
+# target to build an object file
+QRdecoder.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/QRdecoder.cpp.obj
+.PHONY : QRdecoder.cpp.obj
+
+QRdecoder.i: QRdecoder.cpp.i
+.PHONY : QRdecoder.i
+
+# target to preprocess a source file
+QRdecoder.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/QRdecoder.cpp.i
+.PHONY : QRdecoder.cpp.i
+
+QRdecoder.s: QRdecoder.cpp.s
+.PHONY : QRdecoder.s
+
+# target to generate assembly for a file
+QRdecoder.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\QRScanner.dir\build.make CMakeFiles/QRScanner.dir/QRdecoder.cpp.s
+.PHONY : QRdecoder.cpp.s
+
 Vector.obj: Vector.cpp.obj
 .PHONY : Vector.obj
 
@@ -445,6 +469,9 @@ help:
 	@echo ... Matrix.obj
 	@echo ... Matrix.i
 	@echo ... Matrix.s
+	@echo ... QRdecoder.obj
+	@echo ... QRdecoder.i
+	@echo ... QRdecoder.s
 	@echo ... Vector.obj
 	@echo ... Vector.i
 	@echo ... Vector.s
