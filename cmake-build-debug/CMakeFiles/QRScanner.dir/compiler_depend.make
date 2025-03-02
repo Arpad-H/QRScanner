@@ -1056,6 +1056,7 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: E:/Unity/UnityProjects/QRScanner/main.cpp
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/mm_malloc.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/mmintrin.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/mwaitintrin.h \
+  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/omp.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/pmmintrin.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stddef.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stdint.h \
@@ -1520,6 +1521,8 @@ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/streambuf_iterator.h:
 
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/string_view.tcc:
+
+D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/omp.h:
 
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/cctype:
 

@@ -1,4 +1,4 @@
-
+#include <omp.h>
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -25,7 +25,6 @@
 
 #define EPSILON  1e-9
 #define PI 3.14159265358979323846
-
 
 
 using namespace std;
@@ -198,7 +197,6 @@ bool IsSquare(const ObjectProperties &obj, const unsigned int MIN_AREA, const un
 
     return true;
 }
-
 
 
 vector<ObjectProperties> GetObjectProperties(const Img<unsigned int> &label_image) {
@@ -557,7 +555,6 @@ float IsRotated(const ObjectProperties &a, const ObjectProperties &b, const Obje
 }
 
 
-
 vector<RGB_Pixel> create_LabelColors(unsigned int num_objects) {
     vector<RGB_Pixel> colors; // enthaelt Farben in Reihenfolge des Farbwinkels
 
@@ -575,7 +572,6 @@ vector<RGB_Pixel> create_LabelColors(unsigned int num_objects) {
     random_shuffle(colors.begin(), colors.end());
     return colors;
 }
-
 
 
 template<typename VT>
@@ -848,16 +844,44 @@ ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rh
                       unsigned int threshold) {
     vector<Line> detected_lines;
 
-    for (unsigned int rho = 0; rho < hough.size(); ++rho) {
-        for (unsigned int theta = 0; theta < theta_dim; ++theta) {
-            if (hough[rho][theta] > threshold &&
-                ((theta < 10 || (theta > 80 && theta < 100) || (theta > 170 && theta < 190) ||
-                  (theta > 260 && theta < 280) || theta > 350))) {
-                detected_lines.push_back({(double) (rho - rho_max), theta * M_PI / 180.0});
-            }
+    double sum = 0, sum_sq = 0;
+    int count = 0;
+    for (const auto &row: hough) {
+        for (unsigned int votes: row) {
+            sum += votes;
+            sum_sq += votes * votes;
+            count++;
         }
     }
 
+    double mean = sum / count;
+    double variance = (sum_sq / count) - (mean * mean);
+    double stddev = std::sqrt(variance);
+
+//    threshold = (mean + 2 * stddev) * 2.5;
+    cout << "Threshold: " << threshold << endl;
+
+
+#pragma omp parallel
+    {
+        vector<Line> local_lines; // Thread-local storage to reduce contention
+
+#pragma omp for
+        for (unsigned int rho = 0; rho < hough.size(); ++rho) {
+            for (unsigned int theta = 0; theta < theta_dim; ++theta) {
+                if (hough[rho][theta] > threshold &&
+                    ((theta < 10 || (theta > 80 && theta < 100) || (theta > 170 && theta < 190) ||
+                      (theta > 260 && theta < 280) || theta > 350))) {
+                    local_lines.push_back({(double) (rho - rho_max), theta * M_PI / 180.0});
+                }
+            }
+        }
+
+        // Merge local_lines into the main detected_lines vector in a thread-safe way
+#pragma omp critical
+        detected_lines.insert(detected_lines.end(), local_lines.begin(), local_lines.end());
+    }
+    cout << "Detected lines: " << detected_lines.size() << endl;
     return detected_lines;
 }
 
@@ -931,59 +955,27 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
     vector<Vector> intersectionPointsBottomLeft;
     vector<Vector> intersectionPointsBottomRight;
 
-    // Filter lines that intersect with the QR code
-    for (auto &line: lines) {
-        if (doesLineIntersectBox(line, qrCodeL[0], 50) || doesLineIntersectBox(line, qrCodeL[1], 50) ||
-            doesLineIntersectBox(line, qrCodeL[2], 50)) {
-            filteredLines.push_back(line);
+#pragma omp parallel
+    {
+        std::vector<Line> localFilteredLines; // Thread-local storage to avoid race conditions
+#pragma omp for nowait
+        for (size_t i = 0; i < lines.size(); ++i) {
+            if (doesLineIntersectBox(lines[i], qrCodeL[0], 50) ||
+                doesLineIntersectBox(lines[i], qrCodeL[1], 50) ||
+                doesLineIntersectBox(lines[i], qrCodeL[2], 50)) {
+                localFilteredLines.push_back(lines[i]);
+            }
         }
-
+        // Merge local results into the global vector safely
+#pragma omp critical
+        filteredLines.insert(filteredLines.end(), localFilteredLines.begin(), localFilteredLines.end());
     }
+
     for (auto &line: filteredLines) {
         if (doesLineIntersectBox(line, topRight) && doesLineIntersectBox(line, bottomRight)) {
             filteredLines.push_back(line);
         }
     }
-
-
-/*
-    vector<Vector> intersectionPoints;
-   for (int i = 0; i < filteredLines.size(); i++) {
-//        for (int j = i + 1; j < filteredLines.size(); j++) {
-//            Line L1 = filteredLines[i];
-//            Line L2 = filteredLines[j];
-//            double A1 = cos(L1.theta), B1 = sin(L1.theta), C1 = L1.rho;
-//            double A2 = cos(L2.theta), B2 = sin(L2.theta), C2 = L2.rho;
-//
-//
-//
-//            // Compute determinant
-//            double det = A1 * B2 - A2 * B1;
-//            if (fabs(det) < 1e-6) continue; // Parallel lines
-//
-//            // Solve for x, y
-//            double x = (C1 * B2 - C2 * B1) / det;
-//            double y = (A1 * C2 - A2 * C1) / det;
-//
-//            if (x >= 0 && x <= CurrentImageWidth && y >= 0 && y <= CurrentImageHeight) {
-//                Vector intersectionPoint = Vector(x, y, 0);
-//                intersectionPoints.push_back(intersectionPoint);
-//                if (vectorInsideBoxAroundVector(intersectionPoint, topLeft.center, 100.0)) {
-//                    intersectionPointsTopLeft.push_back(intersectionPoint);
-//                }
-//                if (vectorInsideBoxAroundVector(intersectionPoint, topRight.center, 100.0)) {
-//                    intersectionPointsTopRight.push_back(intersectionPoint);
-//                }
-//                if (vectorInsideBoxAroundVector(intersectionPoint, bottomLeft.center, 100.0)) {
-//                    intersectionPointsBottomLeft.push_back(intersectionPoint);
-//                }
-//                if (vectorInsideBoxAroundVector(intersectionPoint, bottomRight.center, 150.0)) {
-//                    intersectionPointsBottomRight.push_back(intersectionPoint);
-//                }
-//            }
-//        }
-//    }*/
-
 
     //Determining the most left, right, top and bottom lines representing the QR code boundaries
     Line leftMostLine, rightMostLine, topMostLine, bottomMostLine;
@@ -1017,10 +1009,7 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
         }
     }
 
-
     vector<Line> edges = {topMostLine, bottomMostLine, leftMostLine, rightMostLine};
-
-
 
     //Determining the corners of the QR code
     vector<Vector> corners;
@@ -1049,6 +1038,28 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
 
         }
     }
+
+    {
+        Img<bool> hough_vis(CurrentImageWidth, CurrentImageHeight);
+        for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
+            for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
+                hough_vis[y][x] = false;
+            }
+        }
+//    DrawLines(hough_vis, lines);
+        DrawLines(hough_vis, edges);
+        try {
+            string t = filepath + "_houghtest.bmp";
+            BmpWrite(t.c_str(), hough_vis);
+            cout << "Schreibe" << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
+        }
+    }
+
+
+
+
     //Visualize(corners);
     return corners;
 
@@ -1085,21 +1096,6 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
     vector<Line> lines = ExtractStrongestLines(hough, rho_max, theta_dim, 145);
     vector<Vector> corners = refineQRBounds(lines, qrCodeL);
 
-    Img<bool> hough_vis(CurrentImageWidth, CurrentImageHeight);
-    for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
-        for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
-            hough_vis[y][x] = false;
-        }
-    }
-    DrawLines(hough_vis, lines);
-//    DrawLines(hough_vis, edges);
-    try {
-        string t = filepath + "_houghtest.bmp";
-        BmpWrite(t.c_str(), hough_vis);
-        cout << "Schreibe" << t << endl;
-    } catch (const char *s) {
-        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
-    }
 
     return corners;
 }
@@ -1410,7 +1406,7 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
 
 
 void correctToPointOnPattern(Img<bool> transformed, Vector &topLeft, Vector &topRight, Vector &bottomLeft,
-                           Vector &bottomRight) {
+                             Vector &bottomRight) {
 
     auto findCornerSpiral = [&](Vector &corner) {
         int radius = 20;
@@ -1521,6 +1517,8 @@ Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {
 }
 
 int main(int argc, char *argv[]) {
+
+
     bool writeUC = false;
     bool writeMedian = true;
     bool writeBool = false;
@@ -1874,10 +1872,16 @@ int main(int argc, char *argv[]) {
         }
 
         vector<Vector> corners = HoughTransform(edges_rotated, qrCodeL);
+        if (corners.size() != 4) {
+            cerr << "hough transform failed" << endl;
+            return -1;
+        }
+
         Vector topLeft, topRight, bottomLeft, bottomRight;
         DetermineCorners(corners[0], corners[1], corners[2], corners[3], topLeft, topRight,
                          bottomLeft, bottomRight);
-        vector<Vector> assignedCorners = {topLeft, topRight, bottomLeft, bottomRight}; //Assigned in order TL, TR, BL, BR
+        vector<Vector> assignedCorners = {topLeft, topRight, bottomLeft,
+                                          bottomRight}; //Assigned in order TL, TR, BL, BR
 
 
 
@@ -1906,7 +1910,8 @@ int main(int argc, char *argv[]) {
         }
 
 
-        correctToPointOnPattern(transformed, topLeft, topRight, bottomLeft, bottomRight); //move corners to the closest point on the pattern
+        correctToPointOnPattern(transformed, topLeft, topRight, bottomLeft,
+                                bottomRight); //move corners to the closest point on the pattern
         vector<Vector> cornersInPattern = {topLeft, topRight, bottomLeft, bottomRight};
         Visualize(cornersInPattern, "closestCorners", Vector(255, 255, 0));
 
@@ -1927,7 +1932,6 @@ int main(int argc, char *argv[]) {
                   Vector(255, 0, 0));
 
 
-
         float moduleSizeX;
         float moduleSizeY;
         int moduleCount;
@@ -1944,13 +1948,6 @@ int main(int argc, char *argv[]) {
                                                Vector(topLeftmin.X, topRightMax.Y, 0),
                                                Vector(bottomLeftmin.X, bottomLeftmin.Y, 0),
                                                Vector(topRightMax.X, topRightMax.Y, 0));
-
-
-
-
-
-
-
 
 
         for (unsigned int y = 0; y < CurrentImageHeight; y++) {

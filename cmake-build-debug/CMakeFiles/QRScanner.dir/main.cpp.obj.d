@@ -1,5 +1,6 @@
 CMakeFiles/QRScanner.dir/main.cpp.obj: \
  E:\Unity\UnityProjects\QRScanner\main.cpp \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/omp.h \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/string \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/requires_hosted.h \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32/bits/c++config.h \
