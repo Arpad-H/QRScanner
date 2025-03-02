@@ -22,21 +22,18 @@
 
 #include "QRdecoder.h"
 
-#define K 5                 // Startwert fuer die Suche der Grundfrequenz
-#define SE_GROESSE 3
+
 #define EPSILON  1e-9
-#define INVERTED true
 #define PI 3.14159265358979323846
-#define DP  4           // Genauigkeit fuer double-Ausgaben
-#define DW (DP + 6)     // Feldbreite fuer double-Ausgaben
+
 
 
 using namespace std;
 
 int CurrentImageWidth = 0;
 int CurrentImageHeight = 0;
-Img<RGB_Pixel> vis;
-
+Img<RGB_Pixel> vis; // Visualisierungsbild beim debuggen
+string filepath;
 
 struct ObjectProperties {
     Vector touch_point;
@@ -46,16 +43,67 @@ struct ObjectProperties {
     Vector center;
     RGB_Pixel color;
 };
+
 struct Line {
     double rho;
     double theta;
 };
-string filepath;
 
-void
-AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
-            Vector &topRight,
-            Vector &bottomLeft);
+
+void AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
+                 Vector &topRight,
+                 Vector &bottomLeft) {
+    Vector av = a.center;
+    Vector bv = b.center;
+    Vector cv = c.center;
+
+// Step 1: Calculate distances between all points
+    float d1 = (bv - av).length(); // Distance AB
+    float d2 = (cv - av).length(); // Distance AC
+    float d3 = (cv - bv).length(); // Distance BC
+
+
+    // Step 2: Identify the hypotenuse
+    float max_d = max(d1, max(d2, d3));
+    Vector midPoint;
+
+    if (max_d == d1) { // AB is the hypotenuse
+        midPoint = (av + bv) * 0.5f;
+        if ((cv - midPoint).length() > (av - midPoint).length()) {
+            topLeft = cv;
+            topRight = av;
+            bottomLeft = bv;
+        } else {
+            topLeft = cv;
+            topRight = bv;
+            bottomLeft = av;
+        }
+
+    } else if (max_d == d2) { // AC is the hypotenuse
+        midPoint = (av + cv) * 0.5f;
+        if ((bv - midPoint).length() > (av - midPoint).length()) {
+            topLeft = bv;
+            topRight = av;
+            bottomLeft = cv;
+        } else {
+            topLeft = bv;
+            topRight = cv;
+            bottomLeft = av;
+        }
+    } else if (max_d == d3) { // BC is the hypotenuse
+        midPoint = (bv + cv) * 0.5f;
+        if ((av - midPoint).length() > (bv - midPoint).length()) {
+            topLeft = av;
+            topRight = bv;
+            bottomLeft = cv;
+        } else {
+            topLeft = av;
+            topRight = cv;
+            bottomLeft = bv;
+        }
+    }
+}
+
 
 ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props, Img<RGB_Pixel> img) {
     Vector topLeft;
@@ -71,10 +119,10 @@ ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props, Img<RGB_P
     bottomRight = bottomLeft + (topRight - topLeft);
     ObjectProperties obj;
     obj.center = bottomRight;
-    obj.x_min = bottomRight.X - avgWidth/2;
-    obj.x_max = bottomRight.X + avgWidth/2;
-    obj.y_min = bottomRight.Y - avgWidth/2;
-    obj.y_max = bottomRight.Y + avgWidth/2;
+    obj.x_min = bottomRight.X - avgWidth / 2;
+    obj.x_max = bottomRight.X + avgWidth / 2;
+    obj.y_min = bottomRight.Y - avgWidth / 2;
+    obj.y_max = bottomRight.Y + avgWidth / 2;
     return obj;
 }
 
@@ -107,21 +155,6 @@ void Visualize(const vector<Vector> &points, string desc, Vector color = Vector(
 
 }
 
-
-ObjectProperties VectorToProperties(Vector v) {
-
-    ObjectProperties obj;
-    //obj.label = label;
-
-    obj.center = v;
-    obj.x_min = v.X - 10;
-    obj.x_max = v.X + 10;
-    obj.y_min = v.Y - 10;
-    obj.y_max = v.Y + 10;
-
-    return obj;
-}
-
 Img<RGB_Pixel>
 HighlightPotentialPatterns(const vector<ObjectProperties> &obj_props) {
 
@@ -148,20 +181,12 @@ HighlightPotentialPatterns(const vector<ObjectProperties> &obj_props) {
 }
 
 
-void Print_RotMat(double R[3][3]) {
-    cout << "Rotationsmatrix (berechnet aus rx, ry, rz):" << endl;
-    cout << setw(DW) << R[0][0] << setw(DW) << R[0][1] << setw(DW) << R[0][2] << endl;
-    cout << setw(DW) << R[1][0] << setw(DW) << R[1][1] << setw(DW) << R[1][2] << endl;
-    cout << setw(DW) << R[2][0] << setw(DW) << R[2][1] << setw(DW) << R[2][2] << endl;
-    cout << endl;
-}
-
 bool IsSquare(const ObjectProperties &obj, const unsigned int MIN_AREA, const unsigned int MAX_AREA) {
     unsigned int width = obj.x_max - obj.x_min + 1;
     unsigned int height = obj.y_max - obj.y_min + 1;
 
     // Check square aspect ratio
-    if (abs((int) width - (int) height) > max(width, height) * 0.2) {
+    if (abs((int) width - (int) height) > max(width, height) * 0.1) {
         return false;
     }
 
@@ -175,20 +200,6 @@ bool IsSquare(const ObjectProperties &obj, const unsigned int MIN_AREA, const un
 }
 
 
-Img<bool> Binary(const Img<RGB_Pixel> &image, unsigned char threshold) {
-    const unsigned int width = image.Width();
-    const unsigned int height = image.Height();
-    Img<bool> binary(width, height);
-
-    for (unsigned int y = 0; y < height; ++y) {
-        for (unsigned int x = 0; x < width; ++x) {
-            binary[y][x] =
-                    image[y][x].Red() > threshold || image[y][x].Green() > threshold || image[y][x].Blue() > threshold;
-        }
-    }
-
-    return binary;
-}
 
 vector<ObjectProperties> GetObjectProperties(const Img<unsigned int> &label_image) {
     map<unsigned int, ObjectProperties> objects;
@@ -319,10 +330,7 @@ unsigned int Labelling(Img<unsigned int> &label_image, vector<pair<int, int> > &
     return v2;
 }
 
-// ----------------------------------------------------------------------------------------------------
-// Labelbild in RGB-Bild konvertieren unter Verwendung eines Vektors,
-// der den Labelwerten RGB-Farben zuordnet
-// ----------------------------------------------------------------------------------------------------
+
 Img<RGB_Pixel> Labelimage_to_RGB(const Img<unsigned int> &label_image, vector<RGB_Pixel> colors) {
     const unsigned int width = label_image.Width();
     const unsigned int height = label_image.Height();
@@ -341,6 +349,7 @@ Img<RGB_Pixel> Labelimage_to_RGB(const Img<unsigned int> &label_image, vector<RG
     return Label_RGB;
 }
 
+
 vector<ObjectProperties> getPotentialFinderPatterns(const vector<ObjectProperties> &obj_props) {
     vector<ObjectProperties> potentialFinderPatterns;
     for (const auto &obj: obj_props) {
@@ -350,13 +359,6 @@ vector<ObjectProperties> getPotentialFinderPatterns(const vector<ObjectPropertie
     }
     return potentialFinderPatterns;
 }
-
-
-float Distance(ObjectProperties a, ObjectProperties b) {
-
-    return abs((a.center - b.center).length());
-}
-
 
 bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c) {
 
@@ -378,60 +380,6 @@ bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const Object
     }
     return false;
 
-}
-
-void AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
-                 Vector &topRight,
-                 Vector &bottomLeft) {
-    Vector av = a.center;
-    Vector bv = b.center;
-    Vector cv = c.center;
-
-// Step 1: Calculate distances between all points
-    float d1 = (bv - av).length(); // Distance AB
-    float d2 = (cv - av).length(); // Distance AC
-    float d3 = (cv - bv).length(); // Distance BC
-
-
-    // Step 2: Identify the hypotenuse
-    float max_d = max(d1, max(d2, d3));
-    Vector midPoint;
-
-    if (max_d == d1) { // AB is the hypotenuse
-        midPoint = (av + bv) * 0.5f;
-        if ((cv - midPoint).length() > (av - midPoint).length()) {
-            topLeft = cv;
-            topRight = av;
-            bottomLeft = bv;
-        } else {
-            topLeft = cv;
-            topRight = bv;
-            bottomLeft = av;
-        }
-
-    } else if (max_d == d2) { // AC is the hypotenuse
-        midPoint = (av + cv) * 0.5f;
-        if ((bv - midPoint).length() > (av - midPoint).length()) {
-            topLeft = bv;
-            topRight = av;
-            bottomLeft = cv;
-        } else {
-            topLeft = bv;
-            topRight = cv;
-            bottomLeft = av;
-        }
-    } else if (max_d == d3) { // BC is the hypotenuse
-        midPoint = (bv + cv) * 0.5f;
-        if ((av - midPoint).length() > (bv - midPoint).length()) {
-            topLeft = av;
-            topRight = bv;
-            bottomLeft = cv;
-        } else {
-            topLeft = av;
-            topRight = cv;
-            bottomLeft = bv;
-        }
-    }
 }
 
 void AssignPropstoProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c,
@@ -489,20 +437,6 @@ void AssignPropstoProps(const ObjectProperties &a, const ObjectProperties &b, co
     }
 }
 
-vector<ObjectProperties> FindOverlappingProps(const vector<ObjectProperties> &obj_props) {
-    vector<ObjectProperties> overlappingProps;
-    float max_deviation = 3;
-    for (int i = 0; i < obj_props.size(); i++) {
-        for (int j = i + 1; j < obj_props.size(); j++) {
-            //only look for centers overlapping with a certain max deviation
-            if (Distance(obj_props[i], obj_props[j]) < max_deviation) {
-                overlappingProps.push_back(obj_props[i]);
-                overlappingProps.push_back(obj_props[j]);
-            }
-        }
-    }
-    return overlappingProps;
-}
 
 vector<ObjectProperties> FindLShapedPatterns(const vector<ObjectProperties> &obj_props) {
 
@@ -623,9 +557,7 @@ float IsRotated(const ObjectProperties &a, const ObjectProperties &b, const Obje
 }
 
 
-// ----------------------------------------------------------------------------------------------------
-// Vektor zufaelliger RGB-Farben fuer die Label eines Labelbilds erzeugen
-// ----------------------------------------------------------------------------------------------------
+
 vector<RGB_Pixel> create_LabelColors(unsigned int num_objects) {
     vector<RGB_Pixel> colors; // enthaelt Farben in Reihenfolge des Farbwinkels
 
@@ -645,9 +577,7 @@ vector<RGB_Pixel> create_LabelColors(unsigned int num_objects) {
 }
 
 
-// ----------------------------------------------------------------------------------------------------
-// Vektor aufsteigender RGB-Farben fuer einen Vektor mit Merkmalswerten erzeugen
-// ----------------------------------------------------------------------------------------------------
+
 template<typename VT>
 vector<RGB_Pixel> Values2ColorVector(const vector<VT> values) {
     // Farbe wird abhaengig von den Merkmalswerten vergeben
@@ -913,7 +843,6 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
     return edges;
 }
 
-
 vector<Line>
 ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rho_max, unsigned int theta_dim,
                       unsigned int threshold) {
@@ -991,19 +920,6 @@ bool doesLineIntersectBox(const Line &line, const ObjectProperties &box, float e
     return intersectsVertically || intersectsHorizontally;
 }
 
-bool PointOnLine(const Line &line, const Vector &point) {
-    double rho = line.rho, theta = line.theta;
-    double cosTheta = cos(theta), sinTheta = sin(theta);
-
-    double distance = point.X * cosTheta + point.Y * sinTheta - rho;
-    return std::abs(distance) < 1;
-}
-
-bool vectorInsideBoxAroundVector(const Vector &v, const Vector &center, const float &error_margin = 50.0) {
-
-    return (v.X >= center.X - error_margin && v.X <= center.X + error_margin &&
-            v.Y >= center.Y - error_margin && v.Y <= center.Y + error_margin);
-}
 
 vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProperties> &qrCodeL) {
     ObjectProperties topLeft, topRight, bottomLeft;
@@ -1014,6 +930,8 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
     vector<Vector> intersectionPointsTopRight;
     vector<Vector> intersectionPointsBottomLeft;
     vector<Vector> intersectionPointsBottomRight;
+
+    // Filter lines that intersect with the QR code
     for (auto &line: lines) {
         if (doesLineIntersectBox(line, qrCodeL[0], 50) || doesLineIntersectBox(line, qrCodeL[1], 50) ||
             doesLineIntersectBox(line, qrCodeL[2], 50)) {
@@ -1027,44 +945,47 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
         }
     }
 
+
+/*
     vector<Vector> intersectionPoints;
+   for (int i = 0; i < filteredLines.size(); i++) {
+//        for (int j = i + 1; j < filteredLines.size(); j++) {
+//            Line L1 = filteredLines[i];
+//            Line L2 = filteredLines[j];
+//            double A1 = cos(L1.theta), B1 = sin(L1.theta), C1 = L1.rho;
+//            double A2 = cos(L2.theta), B2 = sin(L2.theta), C2 = L2.rho;
+//
+//
+//
+//            // Compute determinant
+//            double det = A1 * B2 - A2 * B1;
+//            if (fabs(det) < 1e-6) continue; // Parallel lines
+//
+//            // Solve for x, y
+//            double x = (C1 * B2 - C2 * B1) / det;
+//            double y = (A1 * C2 - A2 * C1) / det;
+//
+//            if (x >= 0 && x <= CurrentImageWidth && y >= 0 && y <= CurrentImageHeight) {
+//                Vector intersectionPoint = Vector(x, y, 0);
+//                intersectionPoints.push_back(intersectionPoint);
+//                if (vectorInsideBoxAroundVector(intersectionPoint, topLeft.center, 100.0)) {
+//                    intersectionPointsTopLeft.push_back(intersectionPoint);
+//                }
+//                if (vectorInsideBoxAroundVector(intersectionPoint, topRight.center, 100.0)) {
+//                    intersectionPointsTopRight.push_back(intersectionPoint);
+//                }
+//                if (vectorInsideBoxAroundVector(intersectionPoint, bottomLeft.center, 100.0)) {
+//                    intersectionPointsBottomLeft.push_back(intersectionPoint);
+//                }
+//                if (vectorInsideBoxAroundVector(intersectionPoint, bottomRight.center, 150.0)) {
+//                    intersectionPointsBottomRight.push_back(intersectionPoint);
+//                }
+//            }
+//        }
+//    }*/
 
-    for (int i = 0; i < filteredLines.size(); i++) {
-        for (int j = i + 1; j < filteredLines.size(); j++) {
-            Line L1 = filteredLines[i];
-            Line L2 = filteredLines[j];
-            double A1 = cos(L1.theta), B1 = sin(L1.theta), C1 = L1.rho;
-            double A2 = cos(L2.theta), B2 = sin(L2.theta), C2 = L2.rho;
 
-
-
-            // Compute determinant
-            double det = A1 * B2 - A2 * B1;
-            if (fabs(det) < 1e-6) continue; // Parallel lines
-
-            // Solve for x, y
-            double x = (C1 * B2 - C2 * B1) / det;
-            double y = (A1 * C2 - A2 * C1) / det;
-
-            if (x >= 0 && x <= CurrentImageWidth && y >= 0 && y <= CurrentImageHeight) {
-                Vector intersectionPoint = Vector(x, y, 0);
-                intersectionPoints.push_back(intersectionPoint);
-                if (vectorInsideBoxAroundVector(intersectionPoint, topLeft.center, 100.0)) {
-                    intersectionPointsTopLeft.push_back(intersectionPoint);
-                }
-                if (vectorInsideBoxAroundVector(intersectionPoint, topRight.center, 100.0)) {
-                    intersectionPointsTopRight.push_back(intersectionPoint);
-                }
-                if (vectorInsideBoxAroundVector(intersectionPoint, bottomLeft.center, 100.0)) {
-                    intersectionPointsBottomLeft.push_back(intersectionPoint);
-                }
-                if (vectorInsideBoxAroundVector(intersectionPoint, bottomRight.center, 150.0)) {
-                    intersectionPointsBottomRight.push_back(intersectionPoint);
-                }
-            }
-        }
-    }
-
+    //Determining the most left, right, top and bottom lines representing the QR code boundaries
     Line leftMostLine, rightMostLine, topMostLine, bottomMostLine;
     bool leftFound = false, rightFound = false, topFound = false, bottomFound = false;
 
@@ -1098,23 +1019,10 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
 
 
     vector<Line> edges = {topMostLine, bottomMostLine, leftMostLine, rightMostLine};
-    Img<bool> hough_vis(CurrentImageWidth, CurrentImageHeight);
-    for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
-        for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
-            hough_vis[y][x] = false;
-        }
-    }
 
-    DrawLines(hough_vis, lines);
-//    DrawLines(hough_vis, edges);
-    try {
-        string t = filepath + "_houghtest.bmp";
-        BmpWrite(t.c_str(), hough_vis);
-        cout << "Schreibe" << t << endl;
-    } catch (const char *s) {
-        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
-    }
 
+
+    //Determining the corners of the QR code
     vector<Vector> corners;
     for (int i = 0; i < edges.size(); i++) {
         for (int j = i + 1; j < edges.size(); j++) {
@@ -1177,6 +1085,21 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
     vector<Line> lines = ExtractStrongestLines(hough, rho_max, theta_dim, 145);
     vector<Vector> corners = refineQRBounds(lines, qrCodeL);
 
+    Img<bool> hough_vis(CurrentImageWidth, CurrentImageHeight);
+    for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
+        for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
+            hough_vis[y][x] = false;
+        }
+    }
+    DrawLines(hough_vis, lines);
+//    DrawLines(hough_vis, edges);
+    try {
+        string t = filepath + "_houghtest.bmp";
+        BmpWrite(t.c_str(), hough_vis);
+        cout << "Schreibe" << t << endl;
+    } catch (const char *s) {
+        cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
+    }
 
     return corners;
 }
@@ -1477,7 +1400,7 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
         }
         lastSample = transformed[baseY][baseX];
 //        adjustment.Y = 0; //TODO Figure out how to adjust form line to line
-//        adjustment.X = 0;
+        adjustment.X /= 2;
 
     }
     Visualize(vis, "vis", Vector(0, 255, 255));
@@ -1486,49 +1409,31 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
 }
 
 
-void correctToActualCorner(Img<bool> transformed, Vector &topLeft, Vector &topRight, Vector &bottomLeft,
+void correctToPointOnPattern(Img<bool> transformed, Vector &topLeft, Vector &topRight, Vector &bottomLeft,
                            Vector &bottomRight) {
 
-    for (int dx = -20; dx <= 20; dx++) {
-        for (int dy = -20; dy <= 20; dy++) {
-            Vector newCorner = topLeft + Vector(dx, dy, 0);
-
-            if (transformed[newCorner.Y][newCorner.X]) {
-                topLeft = newCorner;
+    auto findCornerSpiral = [&](Vector &corner) {
+        int radius = 20;
+        for (int r = 1; r <= radius; ++r) {
+            for (int dx = -r; dx <= r; ++dx) {
+                Vector newCorner1 = corner + Vector(dx, -r, 0);
+                Vector newCorner2 = corner + Vector(dx, r, 0);
+                if (transformed[newCorner1.Y][newCorner1.X]) corner = newCorner1;
+                if (transformed[newCorner2.Y][newCorner2.X]) corner = newCorner2;
+            }
+            for (int dy = -r; dy <= r; ++dy) {
+                Vector newCorner1 = corner + Vector(-r, dy, 0);
+                Vector newCorner2 = corner + Vector(r, dy, 0);
+                if (transformed[newCorner1.Y][newCorner1.X]) corner = newCorner1;
+                if (transformed[newCorner2.Y][newCorner2.X]) corner = newCorner2;
             }
         }
-    }
+    };
 
-    for (int dx = -20; dx <= 20; dx++) {
-        for (int dy = -20; dy <= 20; dy++) {
-            Vector newCorner = topRight + Vector(dx, dy, 0);
-
-            if (transformed[newCorner.Y][newCorner.X]) {
-                topRight = newCorner;
-            }
-        }
-    }
-
-    for (int dx = -20; dx <= 20; dx++) {
-        for (int dy = -20; dy <= 20; dy++) {
-            Vector newCorner = bottomLeft + Vector(dx, dy, 0);
-
-            if (transformed[newCorner.Y][newCorner.X]) {
-                bottomLeft = newCorner;
-            }
-        }
-    }
-
-    for (int dx = -20; dx <= 20; dx++) {
-        for (int dy = -20; dy <= 20; dy++) {
-            Vector newCorner = bottomRight + Vector(dx, dy, 0);
-
-            if (transformed[newCorner.Y][newCorner.X]) {
-                bottomRight = newCorner;
-            }
-        }
-    }
-
+    findCornerSpiral(topLeft);
+    findCornerSpiral(topRight);
+    findCornerSpiral(bottomLeft);
+    findCornerSpiral(bottomRight);
 }
 
 
@@ -1576,6 +1481,7 @@ void floodFill(Img<bool> &img, Vector point, int &minX, int &maxX, int &minY, in
         }
     }
 }
+
 void printQRCode(Img<bool> &croppedQRCode) {
     for (unsigned int y = 0; y < croppedQRCode.Height(); ++y) {
         for (unsigned int x = 0; x < croppedQRCode.Width(); ++x) {
@@ -1584,9 +1490,11 @@ void printQRCode(Img<bool> &croppedQRCode) {
         cout << endl;
     }
 }
-Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {;
 
-    unsigned int minX= 1000000;
+Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {
+
+
+    unsigned int minX = 1000000;
     unsigned int minY = 1000000;
     unsigned int maxX = 0;
     unsigned int maxY = 0;
@@ -1597,12 +1505,12 @@ Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {;
         maxX = max(maxX, qrCode.x_max);
         maxY = max(maxY, qrCode.y_max);
     }
-    minX -= CurrentImageWidth / 80;
-    minY -= CurrentImageHeight / 80;
-    maxX += CurrentImageWidth / 80;
-    maxY += CurrentImageHeight / 80;
+    minX -= (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
+    minY -= (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
+    maxX += (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
+    maxY += (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
 
-    Img<bool> croppedImg (maxY - minY, maxX - minX);
+    Img<bool> croppedImg(maxY - minY, maxX - minX);
     for (int y = minY; y < maxY; y++) {
         for (int x = minX; x < maxX; x++) {
             croppedImg[y - minY][x - minX] = img[y][x];
@@ -1611,6 +1519,7 @@ Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {;
     }
     return croppedImg;
 }
+
 int main(int argc, char *argv[]) {
     bool writeUC = false;
     bool writeMedian = true;
@@ -1624,28 +1533,23 @@ int main(int argc, char *argv[]) {
 
     string files[] = {
 //            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
-            //               "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_90\\test_90",
+            //               "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test2\\test2",
 //                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
-//                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",
+            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",
             "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb_rotated\\ffb_r"
     };
-//    string files2[] = {
-//                       "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled"};
+
     string files3[] = {
-            //    "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
-            "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90",
-//        "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r",
-//        "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
+//            "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
+//            "E:\\Unity\\UnityProjects\\QRScanner\\test2\\test2",
+//            "E:\\Unity\\UnityProjects\\QRScanner\\test3\\test3",
+            "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
             "E:\\Unity\\UnityProjects\\QRScanner\\ffb_rotated\\ffb_r"
     };
     string t;
-    //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test\\test";
-    //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_90\\test_90";
-    //string filename = "E:\\Unity\\UnityProjects\\QRScanner\\test_r\\test_r";
+
     for (string &filename: files3) {
-//            QRdecoder qrdecoder;
-//            qrdecoder.decodeQR(filename);
-//            return 1;
+
         Img<bool> Binaerbild;
         Img<unsigned char> median;
         Img<unsigned char> uc;
@@ -1702,7 +1606,7 @@ int main(int argc, char *argv[]) {
 
             Binaerbild = optimal_threshold(median);
 
-          //Invert image
+            //Invert image
             for (unsigned int y = 0; y < CurrentImageHeight; y++) {
                 for (unsigned int x = 0; x < CurrentImageWidth; x++) {
                     bool &p = Binaerbild[y][x];
@@ -1724,9 +1628,8 @@ int main(int argc, char *argv[]) {
 
         }
 
-
-        Img<bool> edges;
         //EDGE DETECTION
+        Img<bool> edges;
         {
             edges = edgeDetection(Binaerbild);
             if (writeEdges) {
@@ -1741,8 +1644,8 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        Img<unsigned int> Labelbild;
         //LABELLING
+        Img<unsigned int> Labelbild;
         {
             const unsigned int H(40), B(500);
             vector<unsigned int> ReferenzWerte;
@@ -1773,7 +1676,7 @@ int main(int argc, char *argv[]) {
             ;
             vector<pair<int, int> > Antastpunkte;
             vector<unsigned int> Objektgroessen;
-            int Objekte = Labelling(Labelbild, Antastpunkte, Objektgroessen, 8, edges);
+            int Objekte = Labelling(Labelbild, Antastpunkte, Objektgroessen, 8, Binaerbild);
             // Fehlebehandlung
             if (Objekte < 0) {
                 cerr << "Fehler beim Labelling" << endl;
@@ -1804,50 +1707,49 @@ int main(int argc, char *argv[]) {
                 }
         }
 
+        //FIND POTENTIAL FINDER PATTERNS AND QR CODE POSITION
+        vector<ObjectProperties> qrCodeL;
+        Img<RGB_Pixel> QRCode;
+        {
+            vector<ObjectProperties> obj_props = GetObjectProperties(Labelbild);
+            vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
+            Img<RGB_Pixel> potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns);
 
-        vector<ObjectProperties> obj_props = GetObjectProperties(Labelbild);
-        vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
-        Img<RGB_Pixel> potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns);
+            if (writePotentialFinderPatterns) {
+                try {
+                    t = filename + "_PotentialFinderPatterns.bmp";
+                    BmpWrite(t.c_str(), potentialFinderPatternsVis);
+                    cout << "Schreibe " << t << endl;
+                } catch (const char *s) {
+                    cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+                    return -1;
+                }
+            }
 
-        if (writePotentialFinderPatterns) {
-            try {
-                t = filename + "_PotentialFinderPatterns.bmp";
-                BmpWrite(t.c_str(), potentialFinderPatternsVis);
-                cout << "Schreibe " << t << endl;
-            } catch (const char *s) {
-                cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+
+            qrCodeL = FindLShapedPatterns(potentialFinderPatterns);
+            QRCode = HighlightPotentialPatterns(qrCodeL);
+
+
+            if (writeQRCodePosition) {
+                try {
+                    t = filename + "_QRCodePosition.bmp";
+                    BmpWrite(t.c_str(), QRCode);
+                    cout << "Schreibe " << t << endl;
+                } catch (const char *s) {
+                    cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+                    return -1;
+                }
+            }
+
+            if (qrCodeL.size() != 3) {
+                cerr << "Kein QR-Code gefunden" << "L-Shaped patterns:" << floor(qrCodeL.size() / 3) << endl;
                 return -1;
             }
         }
-
-
-        vector<ObjectProperties> qrCodeL = FindLShapedPatterns(potentialFinderPatterns);
-        Img<RGB_Pixel> QRCode = HighlightPotentialPatterns(qrCodeL);
-
-
-
-        if (writeQRCodePosition) {
-            try {
-                t = filename + "_QRCodePosition.bmp";
-                BmpWrite(t.c_str(), QRCode);
-                cout << "Schreibe " << t << endl;
-            } catch (const char *s) {
-                cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
-                return -1;
-            }
-        }
-
-        if (qrCodeL.size() != 3) {
-            cerr << "Kein QR-Code gefunden" << "L-Shaped patterns:" << floor(qrCodeL.size() / 3) << endl;
-            return -1;
-        }
-
-        Img<bool> img(CurrentImageWidth, CurrentImageHeight); // entzerrtes Bild
-
-
-
 
         //ROTATION
+        Img<bool> img(CurrentImageWidth, CurrentImageHeight); // rotiertes Bild
         {
             float angle = IsRotated(qrCodeL[0], qrCodeL[1], qrCodeL[2]);
             cout << "Angle: " << angle << endl;
@@ -1886,62 +1788,57 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        try {
-            t = filename + "_binary_rotated.bmp";
-            BmpWrite(t.c_str(), img);
-            cout << "Schreibe " << t << endl;
-        } catch (const char *s) {
-            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
-            return -1;
-        }
-
-        Img<unsigned int> Labelbild_rotated;
-        vector<pair<int, int> > Antastpunkte_rotated;
-        vector<unsigned int> Objektgroessen_rotated;
-        int Objekte_rotated = Labelling(Labelbild_rotated, Antastpunkte_rotated, Objektgroessen_rotated, 8,
-                                        img);
-        // Fehlebehandlung
-        if (Objekte_rotated < 0) {
-            cerr << "Fehler beim Labelling" << endl;
-            return -1;
-        } else if (Objekte_rotated == 0) {
-            cerr << "Keine Objekte gefunden" << endl;
-            return -1;
-        }
-        unsigned int num_objects_rotated = Objektgroessen_rotated.size();
+        //SECOND LABELLING
+        vector<ObjectProperties> potentialFinderPatterns;
+        {
+            Img<unsigned int> Labelbild_rotated;
+            vector<pair<int, int> > Antastpunkte_rotated;
+            vector<unsigned int> Objektgroessen_rotated;
+            int Objekte_rotated = Labelling(Labelbild_rotated, Antastpunkte_rotated, Objektgroessen_rotated, 8,
+                                            img);
+            // Fehlebehandlung
+            if (Objekte_rotated < 0) {
+                cerr << "Fehler beim Labelling" << endl;
+                return -1;
+            } else if (Objekte_rotated == 0) {
+                cerr << "Keine Objekte gefunden" << endl;
+                return -1;
+            }
+            unsigned int num_objects_rotated = Objektgroessen_rotated.size();
 
 
-        // Labelbild mit verschiedenen Farben fuer die Objekte erzeugen und ausgeben
-        vector<RGB_Pixel> Farben_rotated = create_LabelColors(num_objects_rotated);
-        Img<RGB_Pixel> LabelAnzeige_rotated = Labelimage_to_RGB(Labelbild_rotated, Farben_rotated);
-        for (unsigned int i = 0; i < Objektgroessen_rotated.size(); i++) { // Antastpunkte schwarz einzeichnen
-            LabelAnzeige_rotated[Antastpunkte_rotated[i].second][Antastpunkte_rotated[i].first] = RGB_Pixel(0, 0,
-                                                                                                            0);
-        }
-        try {
-            t = filename + "_Labelbild_rotated.bmp";
-            BmpWrite(t.c_str(), LabelAnzeige_rotated);
-            cout << "Schreibe " << t << endl;
-        } catch (const char *s) {
-            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
-            return -1;
+            // Labelbild mit verschiedenen Farben fuer die Objekte erzeugen und ausgeben
+            vector<RGB_Pixel> Farben_rotated = create_LabelColors(num_objects_rotated);
+            Img<RGB_Pixel> LabelAnzeige_rotated = Labelimage_to_RGB(Labelbild_rotated, Farben_rotated);
+            for (unsigned int i = 0; i < Objektgroessen_rotated.size(); i++) { // Antastpunkte schwarz einzeichnen
+                LabelAnzeige_rotated[Antastpunkte_rotated[i].second][Antastpunkte_rotated[i].first] = RGB_Pixel(0, 0,
+                                                                                                                0);
+            }
+            try {
+                t = filename + "_Labelbild_rotated.bmp";
+                BmpWrite(t.c_str(), LabelAnzeige_rotated);
+                cout << "Schreibe " << t << endl;
+            } catch (const char *s) {
+                cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+                return -1;
+            }
+
+            vector<ObjectProperties> obj_props = GetObjectProperties(Labelbild_rotated);
+            potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
+            Img<RGB_Pixel> potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns);
+            try {
+                t = filename + "_PotentialFinderPatterns_rotated.bmp";
+                BmpWrite(t.c_str(), potentialFinderPatternsVis);
+                cout << "Schreibe " << t << endl;
+            } catch (const char *s) {
+                cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+                return -1;
+            }
         }
 
-        obj_props = GetObjectProperties(Labelbild_rotated);
-        potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
-        potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns);
-        try {
-            t = filename + "_PotentialFinderPatterns_rotated.bmp";
-            BmpWrite(t.c_str(), potentialFinderPatternsVis);
-            cout << "Schreibe " << t << endl;
-        } catch (const char *s) {
-            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
-            return -1;
-        }
 
-//        qrCode = FindOverlappingProps(potentialFinderPatterns);
         qrCodeL = FindLShapedPatterns(potentialFinderPatterns);
-//        QRCode = HighlightPotentialPatterns(qrCodeL);
+
 
         ObjectProperties o = EstimtateFourthCorner(qrCodeL, QRCode);
         qrCodeL.push_back(o);
@@ -1977,31 +1874,28 @@ int main(int argc, char *argv[]) {
         }
 
         vector<Vector> corners = HoughTransform(edges_rotated, qrCodeL);
-
-
         Vector topLeft, topRight, bottomLeft, bottomRight;
         DetermineCorners(corners[0], corners[1], corners[2], corners[3], topLeft, topRight,
                          bottomLeft, bottomRight);
+        vector<Vector> assignedCorners = {topLeft, topRight, bottomLeft, bottomRight}; //Assigned in order TL, TR, BL, BR
 
 
-        vector<Vector> assignedCorners = {topLeft, topRight, bottomLeft, bottomRight};
 
         vector<Vector> correctedCorners = {
                 topLeft,
                 topRight,
                 Vector(topLeft.X, bottomLeft.Y, 0),
-                Vector(topRight.X, bottomRight.Y, 0)
+                Vector(topRight.X, bottomLeft.Y, 0)
         };
 
         Visualize(correctedCorners, "correctedCorners", Vector(0, 255, 0));
         Visualize(corners, "corners", Vector(0, 0, 255));
 
-
         Eigen::Matrix3d perspectiveMatrix = computeHomography(assignedCorners, correctedCorners);
         Matrix m = EigneMatrix3dToMatrix(perspectiveMatrix);
         m.invert();
-        Img<bool> transformed = TransformImage(img, m);
 
+        Img<bool> transformed = TransformImage(img, m);
         try {
             t = filename + "_transformed.bmp";
             BmpWrite(t.c_str(), transformed);
@@ -2012,22 +1906,19 @@ int main(int argc, char *argv[]) {
         }
 
 
-        correctToActualCorner(transformed, topLeft, topRight, bottomLeft, bottomRight);
+        correctToPointOnPattern(transformed, topLeft, topRight, bottomLeft, bottomRight); //move corners to the closest point on the pattern
         vector<Vector> cornersInPattern = {topLeft, topRight, bottomLeft, bottomRight};
+        Visualize(cornersInPattern, "closestCorners", Vector(255, 255, 0));
 
-//        Visualize(cornersInPattern, "closestCorners", Vector(255, 0, 0));
 
-
+        //Flood Fill to determine acurate bounds
         int minX, maxX, minY, maxY;
         floodFill(transformed, topLeft, minX, maxX, minY, maxY);
         Vector topLeftmin = Vector(minX, minY, 0);
         Vector topLeftMax = Vector(maxX, maxY, 0);
-
-
         floodFill(transformed, topRight, minX, maxX, minY, maxY);
         Vector topRightmin = Vector(minX, minY, 0);
         Vector topRightMax = Vector(maxX, maxY, 0);
-
         floodFill(transformed, bottomLeft, minX, maxX, minY, maxY);
         Vector bottomLeftmin = Vector(minX, minY, 0);
         Vector bottomLeftMax = Vector(maxX, maxY, 0);
@@ -2035,23 +1926,32 @@ int main(int argc, char *argv[]) {
         Visualize({topLeftmin, topLeftMax, topRightmin, topRightMax, bottomLeftMax, bottomLeftmin}, "topLeftFloodFill",
                   Vector(255, 0, 0));
 
+
+
         float moduleSizeX;
         float moduleSizeY;
         int moduleCount;
         calculateModuleSize(moduleSizeX, moduleSizeY, moduleCount, topLeftMax, bottomLeftmin, topRightMax, topRightmin);
 
         cout << "Module Count: " << moduleCount << endl;
-
         cout << "Module Size X: " << moduleSizeX << endl;
         cout << "Module Size Y: " << moduleSizeY << endl;
 
-        Img<RGB_Pixel> rgbTransformed = boolToRgb(transformed);
 
+        Img<RGB_Pixel> rgbTransformed = boolToRgb(transformed); //To Draw debug info
 
         Img<bool> croppedQRCode = cropToQRCode(rgbTransformed, transformed, moduleCount, moduleSizeX, moduleSizeY,
                                                Vector(topLeftmin.X, topRightMax.Y, 0),
                                                Vector(bottomLeftmin.X, bottomLeftmin.Y, 0),
                                                Vector(topRightMax.X, topRightMax.Y, 0));
+
+
+
+
+
+
+
+
 
         for (unsigned int y = 0; y < CurrentImageHeight; y++) {
             for (unsigned int x = 0; x < CurrentImageWidth; x++) {
@@ -2059,7 +1959,7 @@ int main(int argc, char *argv[]) {
                 p = not p;
             }
         }
-        printQRCode(croppedQRCode);
+//        printQRCode(croppedQRCode);
         try {
             t = filename + "_croppedQRCode.bmp";
             BmpWrite(t.c_str(), croppedQRCode);
