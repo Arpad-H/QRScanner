@@ -887,6 +887,7 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: E:/Unity/UnityProjects/QRScanner/main.cpp
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/cpp_type_traits.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/cxxabi_forced.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/cxxabi_init_exception.h \
+  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/deque.tcc \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/enable_special_members.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/erase_if.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/exception.h \
@@ -940,6 +941,7 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: E:/Unity/UnityProjects/QRScanner/main.cpp
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_algobase.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_bvector.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_construct.h \
+  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_deque.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_function.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_heap.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_iterator.h \
@@ -948,6 +950,7 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: E:/Unity/UnityProjects/QRScanner/main.cpp
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_map.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_multimap.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_pair.h \
+  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_queue.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_relops.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_tempbuf.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_tree.h \
@@ -982,6 +985,7 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: E:/Unity/UnityProjects/QRScanner/main.cpp
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/cwctype \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/debug/assertions.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/debug/debug.h \
+  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/deque \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/exception \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/ext/aligned_buffer.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/ext/alloc_traits.h \
@@ -1006,6 +1010,7 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: E:/Unity/UnityProjects/QRScanner/main.cpp
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/pstl/execution_defs.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/pstl/glue_algorithm_defs.h \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/pstl/pstl_config.h \
+  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/queue \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/sstream \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/stdexcept \
   D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/stdlib.h \
@@ -1832,6 +1837,8 @@ C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eig
 
 C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h:
 
+D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_queue.h:
+
 C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/Half.h:
 
 C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include/eigen3/Eigen/src/Core/arch/Default/TypeCasting.h:
@@ -1966,9 +1973,15 @@ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13
 
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/atomic_wait.h:
 
+D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/deque.tcc:
+
+D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/deque:
+
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/enable_special_members.h:
 
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/std_mutex.h:
+
+D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_deque.h:
 
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/unordered_map.h:
 
@@ -1977,6 +1990,8 @@ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/cstdint:
 
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/functional:
+
+D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/queue:
 
 D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/unordered_map:
 

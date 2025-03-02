@@ -326,3 +326,68 @@ void UndistoreImage(
         }
     }
 }
+void UndistoreImage(
+        Img<unsigned int> &img,
+        const double  intrinsic[3][3],
+        Img<unsigned int> &img_d,
+        const double  intrinsic_d[3][3],
+        const double distCoeffs[5],
+        const double rotVect[3] )
+{
+    const double &fx_d = intrinsic_d[0][0];
+    const double &fy_d = intrinsic_d[1][1];
+    const double &cx_d = intrinsic_d[0][2];
+    const double &cy_d = intrinsic_d[1][2];
+    const double &k1 = distCoeffs[0];
+    const double &k2 = distCoeffs[1];
+    const double &k3 = distCoeffs[4];
+    const double &p1 = distCoeffs[2];
+    const double &p2 = distCoeffs[3];
+    const double &fx = intrinsic[0][0];
+    const double &fy = intrinsic[1][1];
+    const double &cx = intrinsic[0][2];
+    const double &cy = intrinsic[1][2];
+
+    img.Margin_Constant(0); // Set margins to black (0)
+
+    double R[3][3];
+    RotMat_from_Rodriguez(R, rotVect);
+
+    for (unsigned int v = 0; v < img.Height(); v++) {
+        for (unsigned int u = 0; u < img.Width(); u++) {
+            double xn = (double(u) - cx) / fx;
+            double yn = (double(v) - cy) / fy;
+            double zn = 1.0;
+            double xh = R[0][0] * xn + R[0][1] * yn + R[0][2] * zn;
+            double yh = R[1][0] * xn + R[1][1] * yn + R[1][2] * zn;
+            double zh = R[2][0] * xn + R[2][1] * yn + R[2][2] * zn;
+            double x = xh / zh;
+            double y = yh / zh;
+            double r_2 = x * x + y * y;
+            double x_d = x * (1 + k1 * r_2 + k2 * r_2 * r_2 + k3 * r_2 * r_2 * r_2) + 2.0 * p1 * x * y + p2 * (r_2 + 2.0 * x * x);
+            double y_d = y * (1 + k1 * r_2 + k2 * r_2 * r_2 + k3 * r_2 * r_2 * r_2) + p1 * (r_2 + 2.0 * y * y) + 2.0 * p2 * x * y;
+            double u_d = fx_d * x_d + cx_d;
+            double v_d = fy_d * y_d + cy_d;
+
+            // Bilinear Interpolation for unsigned int images
+            int u0 = int(u_d);
+            int v0 = int(v_d);
+            int u1 = u0 + 1;
+            int v1 = v0 + 1;
+
+            double w00 = (v1 - v_d) * (u1 - u_d);
+            double w01 = (v1 - v_d) * (u_d - u0);
+            double w10 = (v_d - v0) * (u1 - u_d);
+            double w11 = (v_d - v0) * (u_d - u0);
+
+            // Ensure indices are within bounds
+            unsigned int p00 = (u0 >= 0 && u0 < img_d.Width() && v0 >= 0 && v0 < img_d.Height()) ? img_d[v0][u0] : 0;
+            unsigned int p01 = (u1 >= 0 && u1 < img_d.Width() && v0 >= 0 && v0 < img_d.Height()) ? img_d[v0][u1] : 0;
+            unsigned int p10 = (u0 >= 0 && u0 < img_d.Width() && v1 >= 0 && v1 < img_d.Height()) ? img_d[v1][u0] : 0;
+            unsigned int p11 = (u1 >= 0 && u1 < img_d.Width() && v1 >= 0 && v1 < img_d.Height()) ? img_d[v1][u1] : 0;
+
+            // Compute the new pixel value using bilinear interpolation
+            img[v][u] = static_cast<unsigned int>(w00 * p00 + w01 * p01 + w10 * p10 + w11 * p11);
+        }
+    }
+}

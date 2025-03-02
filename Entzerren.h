@@ -54,6 +54,14 @@ void UndistoreImage(
         const double distCoeffs[5],
         const double rotVect[3]
 );
+void UndistoreImage(
+        Img<unsigned int> &img,
+        const double intrinsic[3][3],
+        Img<unsigned int> &img_d,
+        const double intrinsic_d[3][3],
+        const double distCoeffs[5],
+        const double rotVect[3]
+);
 
 // ------------------------------------------------------------------------------------------------
 // Einen Vektor von Punkten entzerren

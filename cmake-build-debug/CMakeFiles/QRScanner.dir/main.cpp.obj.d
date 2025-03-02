@@ -186,6 +186,16 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_map.h \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_multimap.h \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/erase_if.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/queue \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/deque \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_uninitialized.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_deque.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/deque.tcc \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/vector \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_vector.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_bvector.h \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/vector.tcc \
+ D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_queue.h \
  E:/Unity/UnityProjects/QRScanner/lib/libBV/include/AviWrite.h \
  E:/Unity/UnityProjects/QRScanner/lib/libBV/include/FileIO.h \
  E:/Unity/UnityProjects/QRScanner/lib/libBV/include/Img.h \
@@ -193,11 +203,6 @@ CMakeFiles/QRScanner.dir/main.cpp.obj: \
  E:/Unity/UnityProjects/QRScanner/lib/libBV/include/RGB_Pixel.h \
  E:/Unity/UnityProjects/QRScanner/lib/libBV/include/BmpRead.h \
  E:/Unity/UnityProjects/QRScanner/lib/libBV/include/BmpWrite.h \
- D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/vector \
- D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_uninitialized.h \
- D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_vector.h \
- D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_bvector.h \
- D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/vector.tcc \
  E:/Unity/UnityProjects/QRScanner/lib/libBV/include/ConvImg.h \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/utility \
  D:/Program\ Files\ (x86)/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_relops.h \

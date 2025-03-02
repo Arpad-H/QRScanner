@@ -7,6 +7,7 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+#include <queue>
 #include "AviWrite.h"
 #include "BmpRead.h"
 #include "BmpWrite.h"
@@ -70,15 +71,15 @@ ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props, Img<RGB_P
     bottomRight = bottomLeft + (topRight - topLeft);
     ObjectProperties obj;
     obj.center = bottomRight;
-    obj.x_min = bottomRight.X - avgWidth;
-    obj.x_max = bottomRight.X + avgWidth;
-    obj.y_min = bottomRight.Y - avgWidth;
-    obj.y_max = bottomRight.Y + avgWidth;
+    obj.x_min = bottomRight.X - avgWidth/2;
+    obj.x_max = bottomRight.X + avgWidth/2;
+    obj.y_min = bottomRight.Y - avgWidth/2;
+    obj.y_max = bottomRight.Y + avgWidth/2;
     return obj;
 }
 
 
-void Visualize(const vector<Vector> &points, string desc,Vector color = Vector(255,0,255)) {
+void Visualize(const vector<Vector> &points, string desc, Vector color = Vector(255, 0, 255)) {
 
     string filename;
 
@@ -95,7 +96,7 @@ void Visualize(const vector<Vector> &points, string desc,Vector color = Vector(2
     }
 
     try {
-        filename = filepath + "_viz_" + desc +".bmp";
+        filename = filepath + "_viz_" + desc + ".bmp";
         BmpWrite(filename.c_str(), vis);
         cout << "Schreibe viz Bild: " << filename << endl;
     }
@@ -103,9 +104,8 @@ void Visualize(const vector<Vector> &points, string desc,Vector color = Vector(2
         cerr << "Fehler beim Schreiben von " << filename << ": " << s << endl;
 
     }
+
 }
-
-
 
 
 ObjectProperties VectorToProperties(Vector v) {
@@ -344,7 +344,7 @@ Img<RGB_Pixel> Labelimage_to_RGB(const Img<unsigned int> &label_image, vector<RG
 vector<ObjectProperties> getPotentialFinderPatterns(const vector<ObjectProperties> &obj_props) {
     vector<ObjectProperties> potentialFinderPatterns;
     for (const auto &obj: obj_props) {
-        if (IsSquare(obj, 100, 10000)) {
+        if (IsSquare(obj, 50, 10000)) {
             potentialFinderPatterns.push_back(obj);
         }
     }
@@ -913,84 +913,6 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
     return edges;
 }
 
-//void CalculateModuleCount(const Img<RGB_Pixel> &rotatedImage, const vector<ObjectProperties> &qrCodeL) {
-////    vector<ObjectProperties> obj_props = GetObjectProperties(ConvImg<unsigned int, RGB_Pixel>(rotatedImage));
-////    vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
-//    //Img<RGB_Pixel> potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns, Labelbild);
-////    try {
-////        t = filename + "_PotentialFinderPatterns.bmp";
-////        BmpWrite(t.c_str(), potentialFinderPatternsVis);
-////        cout << "Schreibe " << t << endl;
-////    } catch (const char *s) {
-////        cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
-////        return -1;
-////    }
-//
-////    vector<ObjectProperties> qrCode = FindOverlappingProps(potentialFinderPatterns);
-////    vector<ObjectProperties> qrCodeL = FindLShapedPatterns(qrCode);
-//    //Img<RGB_Pixel> QRCode = HighlightPotentialPatterns(qrCodeL);
-//    float moduleXPixels, moduleYPixels;
-//    CalculateModulePixelSize(moduleXPixels, moduleYPixels, qrCodeL);
-//    cout << "ModuleXPixels: " << moduleXPixels << " ModuleYPixels: " << moduleYPixels << endl;
-//    Vector av = qrCodeL[0].center;
-//    Vector bv = qrCodeL[1].center;
-//    Vector cv = qrCodeL[2].center;
-//
-//// Step 1: Calculate distances between all points
-//    float d1 = (bv - av).length(); // Distance AB
-//    float d2 = (cv - av).length(); // Distance AC
-//    float d3 = (cv - bv).length(); // Distance BC
-//    // Step 2: Identify the hypotenuse
-//    float max_d = max(d1, max(d2, d3));
-//    ObjectProperties topLeft, topRight, bottomLeft;
-//    Vector midPoint;
-//
-//    if (max_d == d1) { // AB is the hypotenuse
-//        midPoint = (av + bv) * 0.5f;
-//        if ((cv - midPoint).length() > (av - midPoint).length()) {
-//            topLeft = qrCodeL[2];
-//            topRight = qrCodeL[0];
-//            bottomLeft = qrCodeL[1];
-//        } else {
-//            topLeft = qrCodeL[2];
-//            topRight = qrCodeL[1];
-//            bottomLeft = qrCodeL[0];
-//        }
-//
-//    } else if (max_d == d2) { // AC is the hypotenuse
-//        midPoint = (av + cv) * 0.5f;
-//        if ((bv - midPoint).length() > (av - midPoint).length()) {
-//            topLeft = qrCodeL[1];
-//            topRight = qrCodeL[0];
-//            bottomLeft = qrCodeL[2];
-//        } else {
-//            topLeft = qrCodeL[1];
-//            topRight = qrCodeL[2];
-//            bottomLeft = qrCodeL[0];
-//        }
-//    } else if (max_d == d3) { // BC is the hypotenuse
-//        midPoint = (bv + cv) * 0.5f;
-//        if ((av - midPoint).length() > (bv - midPoint).length()) {
-//            topLeft = qrCodeL[0];
-//            topRight = qrCodeL[1];
-//            bottomLeft = qrCodeL[2];
-//        } else {
-//            topLeft = qrCodeL[0];
-//            topRight = qrCodeL[2];
-//            bottomLeft = qrCodeL[1];
-//        }
-//    }
-//    float dx = topRight.x_max - topLeft.x_min;
-//    float dy = topLeft.y_max - bottomLeft.y_min;
-//    cout << "dx: " << dx << " dy: " << dy << endl;
-//    float moduleSizeX = dx / moduleXPixels;
-//    //int moduleSizeY = dy / moduleYPixels;
-//
-//    cout << "Module Size X: " << moduleSizeX << " Module pixels X: " << moduleXPixels << endl;
-//
-//    Modules = moduleSizeX;
-//
-//}
 
 vector<Line>
 ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rho_max, unsigned int theta_dim,
@@ -1011,7 +933,7 @@ ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rh
 }
 
 void DrawLines(Img<bool> &image, const vector<Line> &lines) {
-  //  cout << "Drawing lines " << lines.size() << endl;
+    //  cout << "Drawing lines " << lines.size() << endl;
     const unsigned int width = image.Width();
     const unsigned int height = image.Height();
 
@@ -1182,7 +1104,9 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
             hough_vis[y][x] = false;
         }
     }
-    DrawLines(hough_vis, edges);
+
+    DrawLines(hough_vis, lines);
+//    DrawLines(hough_vis, edges);
     try {
         string t = filepath + "_houghtest.bmp";
         BmpWrite(t.c_str(), hough_vis);
@@ -1299,7 +1223,7 @@ Eigen::Matrix3d computeHomography(const vector<Vector> &corners, const vector<Ve
 }
 
 Matrix EigneMatrix3dToMatrix(Eigen::Matrix3d matrix) {
-   // cout << matrix << endl;
+    // cout << matrix << endl;
     Matrix m;
     m.identity();
     m.m00 = matrix(0, 0);
@@ -1312,7 +1236,7 @@ Matrix EigneMatrix3dToMatrix(Eigen::Matrix3d matrix) {
     m.m21 = matrix(2, 1);
     m.m22 = matrix(2, 2);
 
-   // m.print();
+    // m.print();
     return m;
 
 }
@@ -1370,17 +1294,323 @@ Img<bool> TransformImage(Img<bool> img, Matrix matrix) {
     return transformedImage;
 }
 
-float calculateModuleSize(Img<bool> transformed,Vector topLeft, Vector topRight, Vector bottomLeft, Vector bottomRight) {
+int roundToNearesValidModuleCount(int moduleCount) {
 
-    Vector start = topLeft;
-    while (!transformed[start.Y][start.X])
-    {
-        start.Y--;
+    int closest = 21;
+    int minDiff = abs(moduleCount - closest);
+
+    for (int version = 2; version <= 40; ++version) {
+        int validModuleCount = 4 * version + 17;
+        int diff = abs(moduleCount - validModuleCount);
+
+        if (diff < minDiff) {
+            minDiff = diff;
+            closest = validModuleCount;
+        }
     }
+
+    return closest;
+}
+
+void calculateModuleSize(float &modulesizeX, float &modulesizeY, int &modulecount,
+                         Vector topLeftMax, Vector bottomLeftMin, Vector topRightMax, Vector topRightMin) {
+
+    float dx1 = topLeftMax.X - bottomLeftMin.X;
+//    float dx2 = qrCodeL[1].x_max - qrCodeL[1].x_min;
+//    float avg_dx = (dx1 + dx2) / 2;
+    modulesizeX = dx1 / 7;
+
+    float dy1 = topLeftMax.Y - topRightMin.Y;
+//    float dy2 = qrCodeL[1].y_max - qrCodeL[1].y_min;
+//    float avg_dy = (dy1 + dy2) / 2;
+    modulesizeY = dy1 / 7;
+
+    float dx3 = topRightMax.X - bottomLeftMin.X;
+    float dy3 = topLeftMax.Y - bottomLeftMin.Y;
+//    float avg_d = (dx3 + dy3) / 2;
+
+    float modulsX = dx3 / modulesizeX;
+    float modulsY = dy3 / modulesizeY;
+
+    modulecount = (modulsX + modulsY) / 2;
+    modulecount = roundToNearesValidModuleCount(modulecount);
+
+
+    modulesizeX = dx3 / modulecount;
+    modulesizeY = dy3 / modulecount;
 
 
 }
 
+bool isSingleModule(Img<bool> &transformed, int moduleCount, float moduleSizeX, float moduleSizeY, float ix, float iy,
+                    Vector topRight, Vector bottomLeft) {
+    bool value = transformed[iy][ix];
+//    bool newValue = !value;
+    if ((transformed[iy][ix] == transformed[iy + moduleSizeY * 0.8][ix] && iy + moduleSizeY * 0.8 < topRight.Y) ||
+        (transformed[iy][ix] == transformed[iy - moduleSizeY * 0.8][ix] && iy - moduleSizeY * 0.8 > bottomLeft.Y) ||
+        (transformed[iy][ix] == transformed[iy][ix + moduleSizeX * 0.8] && ix + moduleSizeX * 0.8 < topRight.X) ||
+        (transformed[iy][ix] == transformed[iy][ix - moduleSizeX * 0.8] && ix - moduleSizeX * 0.8 > bottomLeft.X)) {
+        return false;
+    }
+    return true;
+}
+
+Vector
+recenterSampler(Img<bool> &transformed, int moduleCount, float moduleSizeX, float moduleSizeY, float ix, float iy,
+                Vector topRight, Vector bottomLeft) {
+    int distanceTop = 0;
+    int distanceBottom = 0;
+    int distanceLeft = 0;
+    int distanceRight = 0;
+
+    float dy = iy;
+    float dx = ix;
+
+//    float maxTravel = moduleCount;
+    while ((transformed[iy][ix] == transformed[++dy][dx]) && dy < topRight.Y) {
+//        if (maxTravel == 0) return Vector(0, 0, 0);
+//        maxTravel--;
+        distanceTop++;
+//        transformed[dy][ix] = !transformed[dy][ix];
+    }
+//    maxTravel = moduleCount;
+    dy = iy;
+    dx = ix;
+    while (transformed[iy][ix] == transformed[--dy][dx] && dy > bottomLeft.Y) {
+//        if (maxTravel == 0) return Vector(0, 0, 0);
+//        maxTravel--;
+        distanceBottom++;
+//        transformed[dy][ix] = !transformed[dy][ix];
+    }
+//    maxTravel = moduleCount;
+    dy = iy;
+    dx = ix;
+    while (transformed[iy][ix] == transformed[dy][++dx] && dx < topRight.X) {
+//        if (maxTravel == 0) return Vector(0, 0, 0);
+//        maxTravel--;
+        distanceRight++;
+//        transformed[iy][dx] = !transformed[iy][dx];
+    }
+//    maxTravel = moduleCount;
+    dy = iy;
+    dx = ix;
+    while (transformed[iy][ix] == transformed[dy][--dx] && dx > bottomLeft.X) {
+//        if (maxTravel == 0) return Vector(0, 0, 0);
+//        maxTravel--;
+        distanceLeft++;
+//        transformed[iy][dx] = !transformed[iy][dx];
+    }
+    float newx = (distanceRight - distanceLeft) / 2.0f;
+    float newy = (distanceTop - distanceBottom) / 2.0f;
+    return Vector(newx, newy, 0);
+}
+
+Img<RGB_Pixel> boolToRgb(Img<bool> &img) {
+    Img<RGB_Pixel> rgb(img.Width(), img.Height());
+    for (unsigned int y = 0; y < img.Height(); ++y) {
+        for (unsigned int x = 0; x < img.Width(); ++x) {
+            rgb[y][x] = img[y][x] ? RGB_Pixel(255, 255, 255) : RGB_Pixel(0, 0, 0);
+        }
+    }
+    return rgb;
+}
+
+Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, int moduleCount, float moduleSizeX,
+                       float moduleSizeY, Vector topLeft,
+                       Vector bottomLeft, Vector topRight) {
+    Img<bool> croppedQRCode(moduleCount, moduleCount);
+    for (unsigned int y = 0; y < moduleCount; ++y) {
+        for (unsigned int x = 0; x < moduleCount; ++x) {
+            croppedQRCode[y][x] = false;
+        }
+    }
+//    moduleSizeX = round(moduleSizeX);
+//    moduleSizeY = round(moduleSizeY);
+    float baseX = topLeft.X + moduleSizeX / 2;
+    float baseY = topLeft.Y - moduleSizeY / 2;
+    Vector adjustment(0, 0, 0);
+    Vector initialAdjustment(0, 0, 0);
+    vector<Vector> vis;
+    bool lastSample = transformed[baseY][baseX];
+    for (unsigned int y = 0; y < moduleCount; ++y) {
+        for (unsigned int x = 0; x < moduleCount; ++x) {
+
+            int ix = baseX + (moduleSizeX) * x + adjustment.X + initialAdjustment.X;
+            int iy = baseY - (moduleSizeY) * y + adjustment.Y - initialAdjustment.Y;
+
+
+            if (isSingleModule(transformed, moduleCount, moduleSizeX, moduleSizeY, ix, iy, topRight, bottomLeft)) {
+                adjustment += recenterSampler(transformed, moduleCount, moduleSizeX, moduleSizeY, ix, iy, topRight,
+                                              bottomLeft);
+//                vis.push_back(temp);
+//                if (x == 0) {
+//                    initialAdjustment = adjustment;
+//                }
+                rgbtransformed[iy + 1][ix] = RGB_Pixel(0, 255, 0);
+                rgbtransformed[iy - 1][ix] = RGB_Pixel(0, 255, 0);
+                rgbtransformed[iy][ix + 1] = RGB_Pixel(0, 255, 0);
+                rgbtransformed[iy][ix - 1] = RGB_Pixel(0, 255, 0);
+//                ix = ix + adjustment.X + initialAdjustment.X;
+//                iy = iy + adjustment.Y + initialAdjustment.Y;
+
+            } else if (lastSample != transformed[iy][ix]) {
+                float distanceLeft = 0;
+                float dy = iy;
+                float dx = ix;
+                while (transformed[iy][ix] == transformed[dy][--dx]) {
+                    distanceLeft++;
+                    if (distanceLeft > moduleSizeX) {
+                        distanceLeft /= 2;
+                        break;
+                    }
+
+                }
+                float distanceRight = moduleSizeX - distanceLeft;
+                adjustment.X += (distanceRight - distanceLeft) / 2.0f;
+                lastSample = transformed[iy][ix];
+            }
+            rgbtransformed[iy][ix] = RGB_Pixel(255, 0, 0);
+
+            croppedQRCode[moduleCount - y - 1][x] = transformed[iy][ix];
+
+
+        }
+        lastSample = transformed[baseY][baseX];
+//        adjustment.Y = 0; //TODO Figure out how to adjust form line to line
+//        adjustment.X = 0;
+
+    }
+    Visualize(vis, "vis", Vector(0, 255, 255));
+
+    return croppedQRCode;
+}
+
+
+void correctToActualCorner(Img<bool> transformed, Vector &topLeft, Vector &topRight, Vector &bottomLeft,
+                           Vector &bottomRight) {
+
+    for (int dx = -20; dx <= 20; dx++) {
+        for (int dy = -20; dy <= 20; dy++) {
+            Vector newCorner = topLeft + Vector(dx, dy, 0);
+
+            if (transformed[newCorner.Y][newCorner.X]) {
+                topLeft = newCorner;
+            }
+        }
+    }
+
+    for (int dx = -20; dx <= 20; dx++) {
+        for (int dy = -20; dy <= 20; dy++) {
+            Vector newCorner = topRight + Vector(dx, dy, 0);
+
+            if (transformed[newCorner.Y][newCorner.X]) {
+                topRight = newCorner;
+            }
+        }
+    }
+
+    for (int dx = -20; dx <= 20; dx++) {
+        for (int dy = -20; dy <= 20; dy++) {
+            Vector newCorner = bottomLeft + Vector(dx, dy, 0);
+
+            if (transformed[newCorner.Y][newCorner.X]) {
+                bottomLeft = newCorner;
+            }
+        }
+    }
+
+    for (int dx = -20; dx <= 20; dx++) {
+        for (int dy = -20; dy <= 20; dy++) {
+            Vector newCorner = bottomRight + Vector(dx, dy, 0);
+
+            if (transformed[newCorner.Y][newCorner.X]) {
+                bottomRight = newCorner;
+            }
+        }
+    }
+
+}
+
+
+void floodFill(Img<bool> &img, Vector point, int &minX, int &maxX, int &minY, int &maxY) {
+    int width = img.Width();
+    int height = img.Height();
+
+    // Directions: right, left, down, up
+    vector<Vector> directions = {Vector(1, 0, 0), Vector(-1, 0, 0), Vector(0, 1, 0), Vector(0, -1, 0)};
+
+    // Visited matrix
+    vector<vector<bool>> visited(height, std::vector<bool>(width, false));
+
+    // BFS queue
+    queue<Vector> q;
+    q.push(point);
+    visited[point.Y][point.X] = true;
+
+    // Initialize bounds
+    minX = maxX = point.X;
+    minY = maxY = point.Y;
+
+    while (!q.empty()) {
+        Vector current = q.front();
+        q.pop();
+
+        // Update bounds
+        minX = min(minX, (int) current.X);
+        maxX = max(maxX, (int) current.X);
+        minY = min(minY, (int) current.Y);
+        maxY = max(maxY, (int) current.Y);
+
+        // Expand in all 4 directions
+        for (Vector dir: directions) {
+            Vector next = Vector(current.X + dir.X, current.Y + dir.Y, 0);
+
+            // Bounds check
+            if (next.X < 0 || next.Y < 0 || next.X >= width || next.Y >= height) continue;
+
+            // Check if it's part of the pattern and not visited
+            if (img[next.Y][next.X] && !visited[next.Y][next.X]) {
+                visited[next.Y][next.X] = true;
+                q.push(next);
+            }
+        }
+    }
+}
+void printQRCode(Img<bool> &croppedQRCode) {
+    for (unsigned int y = 0; y < croppedQRCode.Height(); ++y) {
+        for (unsigned int x = 0; x < croppedQRCode.Width(); ++x) {
+            cout << (croppedQRCode[y][x] ? "1 " : "0 ");
+        }
+        cout << endl;
+    }
+}
+Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {;
+
+    unsigned int minX= 1000000;
+    unsigned int minY = 1000000;
+    unsigned int maxX = 0;
+    unsigned int maxY = 0;
+
+    for (ObjectProperties qrCode: qrCodeL) {
+        minX = min(minX, qrCode.x_min);
+        minY = min(minY, qrCode.y_min);
+        maxX = max(maxX, qrCode.x_max);
+        maxY = max(maxY, qrCode.y_max);
+    }
+    minX -= CurrentImageWidth / 80;
+    minY -= CurrentImageHeight / 80;
+    maxX += CurrentImageWidth / 80;
+    maxY += CurrentImageHeight / 80;
+
+    Img<bool> croppedImg (maxY - minY, maxX - minX);
+    for (int y = minY; y < maxY; y++) {
+        for (int x = minX; x < maxX; x++) {
+            croppedImg[y - minY][x - minX] = img[y][x];
+        }
+
+    }
+    return croppedImg;
+}
 int main(int argc, char *argv[]) {
     bool writeUC = false;
     bool writeMedian = true;
@@ -1416,7 +1646,7 @@ int main(int argc, char *argv[]) {
 //            QRdecoder qrdecoder;
 //            qrdecoder.decodeQR(filename);
 //            return 1;
-        Img<bool> opened;
+        Img<bool> Binaerbild;
         Img<unsigned char> median;
         Img<unsigned char> uc;
         Img<RGB_Pixel> rgb;
@@ -1470,21 +1700,21 @@ int main(int argc, char *argv[]) {
 
             }
 
-            Img<bool> Binaerbild = optimal_threshold(median);
-#if true == INVERTED
-            // Bei Bedarf Binaerbild invertieren: Objektpixel muessen "true" sein
+            Binaerbild = optimal_threshold(median);
+
+          //Invert image
             for (unsigned int y = 0; y < CurrentImageHeight; y++) {
                 for (unsigned int x = 0; x < CurrentImageWidth; x++) {
                     bool &p = Binaerbild[y][x];
                     p = not p;
                 }
             }
-#endif
-           opened = erode(Binaerbild, create_round_SE(3));
+
+//           opened = erode(Binaerbild, create_round_SE(3));
             if (writeBool) {
                 try {
                     t = filename + "_bool.bmp";
-                    BmpWrite(t.c_str(), opened);
+                    BmpWrite(t.c_str(), Binaerbild);
                     cout << "Schreibe " << t << endl;
                 } catch (const char *s) {
                     cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
@@ -1498,7 +1728,7 @@ int main(int argc, char *argv[]) {
         Img<bool> edges;
         //EDGE DETECTION
         {
-            edges = edgeDetection(opened);
+            edges = edgeDetection(Binaerbild);
             if (writeEdges) {
                 try {
                     t = filename + "_edges.bmp";
@@ -1594,6 +1824,8 @@ int main(int argc, char *argv[]) {
         vector<ObjectProperties> qrCodeL = FindLShapedPatterns(potentialFinderPatterns);
         Img<RGB_Pixel> QRCode = HighlightPotentialPatterns(qrCodeL);
 
+
+
         if (writeQRCodePosition) {
             try {
                 t = filename + "_QRCodePosition.bmp";
@@ -1611,6 +1843,10 @@ int main(int argc, char *argv[]) {
         }
 
         Img<bool> img(CurrentImageWidth, CurrentImageHeight); // entzerrtes Bild
+
+
+
+
         //ROTATION
         {
             float angle = IsRotated(qrCodeL[0], qrCodeL[1], qrCodeL[2]);
@@ -1637,7 +1873,7 @@ int main(int argc, char *argv[]) {
             rotVect[2] = angle;
             RotMat_from_Rodriguez(R, rotVect);
 
-            UndistoreImage(img, intrinsic_d, opened, intrinsic_d, distCoeffs, rotVect);
+            UndistoreImage(img, intrinsic_d, Binaerbild, intrinsic_d, distCoeffs, rotVect);
 
             try {
                 t = filename + "_rotated.bmp";
@@ -1720,6 +1956,16 @@ int main(int argc, char *argv[]) {
             return -1;
         }
 
+        Img<bool> croppedBinary = cropAround(img, qrCodeL);
+        try {
+            t = filename + "_croppedBinary.bmp";
+            BmpWrite(t.c_str(), croppedBinary);
+            cout << "Schreibe " << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+            return -1;
+        }
+
         Img<bool> edges_rotated = edgeDetection(img);
         try {
             t = filename + "_edges_rotated.bmp";
@@ -1737,6 +1983,7 @@ int main(int argc, char *argv[]) {
         DetermineCorners(corners[0], corners[1], corners[2], corners[3], topLeft, topRight,
                          bottomLeft, bottomRight);
 
+
         vector<Vector> assignedCorners = {topLeft, topRight, bottomLeft, bottomRight};
 
         vector<Vector> correctedCorners = {
@@ -1746,9 +1993,10 @@ int main(int argc, char *argv[]) {
                 Vector(topRight.X, bottomRight.Y, 0)
         };
 
-        Visualize(correctedCorners,"correctedCorners", Vector(255,0,0));
-        Visualize(correctedCorners,"corners", Vector(0,0,255));
-        Visualize(correctedCorners,"assignedCorners", Vector(0,255,0));
+        Visualize(correctedCorners, "correctedCorners", Vector(0, 255, 0));
+        Visualize(corners, "corners", Vector(0, 0, 255));
+
+
         Eigen::Matrix3d perspectiveMatrix = computeHomography(assignedCorners, correctedCorners);
         Matrix m = EigneMatrix3dToMatrix(perspectiveMatrix);
         m.invert();
@@ -1763,9 +2011,71 @@ int main(int argc, char *argv[]) {
             return -1;
         }
 
-       // float moduleSize = calculateModuleSize(transformed,topLeft,topRight,bottomLeft,bottomRight);
+
+        correctToActualCorner(transformed, topLeft, topRight, bottomLeft, bottomRight);
+        vector<Vector> cornersInPattern = {topLeft, topRight, bottomLeft, bottomRight};
+
+//        Visualize(cornersInPattern, "closestCorners", Vector(255, 0, 0));
 
 
+        int minX, maxX, minY, maxY;
+        floodFill(transformed, topLeft, minX, maxX, minY, maxY);
+        Vector topLeftmin = Vector(minX, minY, 0);
+        Vector topLeftMax = Vector(maxX, maxY, 0);
+
+
+        floodFill(transformed, topRight, minX, maxX, minY, maxY);
+        Vector topRightmin = Vector(minX, minY, 0);
+        Vector topRightMax = Vector(maxX, maxY, 0);
+
+        floodFill(transformed, bottomLeft, minX, maxX, minY, maxY);
+        Vector bottomLeftmin = Vector(minX, minY, 0);
+        Vector bottomLeftMax = Vector(maxX, maxY, 0);
+
+        Visualize({topLeftmin, topLeftMax, topRightmin, topRightMax, bottomLeftMax, bottomLeftmin}, "topLeftFloodFill",
+                  Vector(255, 0, 0));
+
+        float moduleSizeX;
+        float moduleSizeY;
+        int moduleCount;
+        calculateModuleSize(moduleSizeX, moduleSizeY, moduleCount, topLeftMax, bottomLeftmin, topRightMax, topRightmin);
+
+        cout << "Module Count: " << moduleCount << endl;
+
+        cout << "Module Size X: " << moduleSizeX << endl;
+        cout << "Module Size Y: " << moduleSizeY << endl;
+
+        Img<RGB_Pixel> rgbTransformed = boolToRgb(transformed);
+
+
+        Img<bool> croppedQRCode = cropToQRCode(rgbTransformed, transformed, moduleCount, moduleSizeX, moduleSizeY,
+                                               Vector(topLeftmin.X, topRightMax.Y, 0),
+                                               Vector(bottomLeftmin.X, bottomLeftmin.Y, 0),
+                                               Vector(topRightMax.X, topRightMax.Y, 0));
+
+        for (unsigned int y = 0; y < CurrentImageHeight; y++) {
+            for (unsigned int x = 0; x < CurrentImageWidth; x++) {
+                bool &p = croppedQRCode[y][x];
+                p = not p;
+            }
+        }
+        printQRCode(croppedQRCode);
+        try {
+            t = filename + "_croppedQRCode.bmp";
+            BmpWrite(t.c_str(), croppedQRCode);
+            cout << "Schreibe " << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+            return -1;
+        }
+        try {
+            t = filename + "test.bmp";
+            BmpWrite(t.c_str(), rgbTransformed);
+            cout << "Schreibe " << t << endl;
+        } catch (const char *s) {
+            cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
+            return -1;
+        }
     }
     return 0;
 
