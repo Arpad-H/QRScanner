@@ -185,7 +185,7 @@ bool IsSquare(const ObjectProperties &obj, const unsigned int MIN_AREA, const un
     unsigned int height = obj.y_max - obj.y_min + 1;
 
     // Check square aspect ratio
-    if (abs((int) width - (int) height) > max(width, height) * 0.1) {
+    if (abs((int) width - (int) height) > max(width, height) * 0.2) {
         return false;
     }
 
@@ -891,7 +891,7 @@ ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rh
 //            }
 //        }
 //    }
-int sum = 0;
+    int sum = 0;
     int count = 0;
     for (unsigned int rho = 0; rho < hough.size(); ++rho) {
         for (unsigned int theta = 0; theta < theta_dim; ++theta) {
@@ -899,15 +899,15 @@ int sum = 0;
             if (hough[rho][theta] > 0) count++;
         }
     }
-    threshold = (sum / count)*3 ;
+    threshold = (sum / count) * 2.6;
     cout << "threshold: " << threshold << endl;
 
     vector<Line> detected_lines;
-    #pragma omp parallel
+#pragma omp parallel
     {
         vector<Line> local_lines; // Thread-local storage to reduce contention
 
-    #pragma omp for
+#pragma omp for
         for (unsigned int rho = 0; rho < hough.size(); ++rho) {
             for (unsigned int theta = 0; theta < theta_dim; ++theta) {
                 if (hough[rho][theta] > threshold &&
@@ -919,7 +919,7 @@ int sum = 0;
         }
 
         // Merge local_lines into the main detected_lines vector in a thread-safe way
-    #pragma omp critical
+#pragma omp critical
         detected_lines.insert(detected_lines.end(), local_lines.begin(), local_lines.end());
     }
     cout << "Detected lines: " << detected_lines.size() << endl;
@@ -1113,8 +1113,8 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
     minY = max(minY - expansionY, 0.0);
 
 // Ensure maxX and maxY do not exceed image boundaries
-    maxX = min(maxX + expansionX, (double)CurrentImageWidth);
-    maxY = min(maxY + expansionY, (double)CurrentImageHeight);
+    maxX = min(maxX + expansionX, (double) CurrentImageWidth);
+    maxY = min(maxY + expansionY, (double) CurrentImageHeight);
 
     // Hough Transform
     for (unsigned int y = minY; y < maxY; ++y) {
@@ -1273,7 +1273,8 @@ int roundToNearesValidModuleCount(int moduleCount) {
 }
 
 void calculateModuleSize(float &modulesizeX, float &modulesizeY, int &modulecount,
-                         Vector topLeftMax, Vector bottomLeftMin, Vector topRightMax, Vector topRightMin,Vector topLeftMin) {
+                         Vector topLeftMax, Vector bottomLeftMin, Vector topRightMax, Vector topRightMin,
+                         Vector topLeftMin) {
 
     float dx1 = topLeftMax.X - topLeftMin.X;
 //    float dx2 = qrCodeL[1].x_max - qrCodeL[1].x_min;
@@ -1300,6 +1301,14 @@ void calculateModuleSize(float &modulesizeX, float &modulesizeY, int &modulecoun
 
     modulesizeX = dx3 / modulecount;
     modulesizeY = dy3 / modulecount;
+
+//    float testX = modulesizeX * modulecount;
+//    float dist1 = (Vector(topLeftMin.X + testX, topLeftMax.Y, 0) - Vector(topRightMax.X, topLeftMax.Y, 0)).X;
+//    testX = (dx3 / modulecount +1) * (modulecount +1);
+//    float dist2 = (Vector(topLeftMin.X + testX, topLeftMax.Y, 0) - Vector(topRightMax.X, topLeftMax.Y, 0)).X;
+//    if (dist1 > dist2) {
+//        modulecount++;
+//    }
 
 
 }
@@ -1380,6 +1389,13 @@ Img<RGB_Pixel> boolToRgb(Img<bool> &img) {
 Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, int moduleCount, float moduleSizeX,
                        float moduleSizeY, Vector topLeft,
                        Vector bottomLeft, Vector topRight) {
+
+    bool doOnce = false;
+    label:
+    if (doOnce) {
+        moduleSizeX = (topRight.X - topLeft.X) / moduleCount;
+        moduleSizeY = (topLeft.Y - bottomLeft.Y) / moduleCount;
+    }
     Img<bool> croppedQRCode(moduleCount, moduleCount);
     for (unsigned int y = 0; y < moduleCount; ++y) {
         for (unsigned int x = 0; x < moduleCount; ++x) {
@@ -1390,14 +1406,15 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
     float baseX = topLeft.X + moduleSizeX / 2;
     float baseY = topLeft.Y - moduleSizeY / 2;
     Vector adjustment(0, 0, 0);
-    Vector initialAdjustment(0, 0, 0);
+    Vector previousInitialAdjustment(0, 0, 0);
     vector<Vector> vis;
     bool lastSample = transformed[baseY][baseX];
+    bool lastRowStartSample = lastSample;
     for (unsigned int y = 0; y < moduleCount; ++y) {
 
         //Adjustment for the first line
-        int ix2 = baseX + adjustment.X + initialAdjustment.X;
-        int iy2 = baseY - (moduleSizeY) * y + adjustment.Y - initialAdjustment.Y;
+        int ix2 = baseX + adjustment.X;
+        int iy2 = baseY - (moduleSizeY) * y + adjustment.Y;
         if (transformed[iy2][ix2]) {
             float distanceLeft = 0;
             float dy = iy2;
@@ -1411,13 +1428,31 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
             }
             float distanceRight = moduleSizeX - distanceLeft;
             adjustment.X += (distanceRight - distanceLeft) / 2.0f;
-        }
+            previousInitialAdjustment = adjustment;
+            lastRowStartSample = true;
+        } else {
+            adjustment.X = previousInitialAdjustment.X;
+//            if (lastRowStartSample)
+//            lastRowStartSample = false;
 
+        }
         for (unsigned int x = 0; x < moduleCount; ++x) {
 
-            int ix = baseX + (moduleSizeX) * x + adjustment.X + initialAdjustment.X;
-            int iy = baseY - (moduleSizeY) * y + adjustment.Y - initialAdjustment.Y;
 
+            int ix = baseX + (moduleSizeX) * x + adjustment.X;
+            int iy = baseY - (moduleSizeY) * y + adjustment.Y;
+
+            if (x == moduleCount - 1 && y == 0) { //if previous modulecount ends up being too short, adjust it onc
+                float dist1 = topRight.X - ix;
+                if (dist1 > moduleSizeX * 2) {
+                    moduleCount += 4;
+                    if (!doOnce) {
+                        doOnce = true;
+                        goto label;
+                    }
+
+                }
+            }
 
             if (isSingleModule(transformed, moduleCount, moduleSizeX, moduleSizeY, ix, iy, topRight, bottomLeft)) {
 
@@ -1446,6 +1481,22 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
                 adjustment.X += (distanceRight - distanceLeft) / 2.0f;
                 lastSample = transformed[iy][ix];
             }
+//            else if (transformed[iy][ix] != transformed[iy][ix + moduleSizeX]) {
+//                float distanceRight = 0;
+//                float dy = iy;
+//                float dx = ix;
+//                while (transformed[iy][ix] == transformed[dy][++dx]) {
+//                    distanceRight++;
+////                    if (distanceRight > moduleSizeX) {
+////                        distanceRight /= 2;
+////                        break;
+////                    }
+//
+//                }
+//                float distanceLeft = moduleSizeX - distanceRight;
+//                adjustment.X += (distanceRight - distanceRight) / 2.0f;
+//                lastSample = transformed[iy][ix];
+//            }
             rgbtransformed[iy][ix] = RGB_Pixel(255, 0, 0);
 
             croppedQRCode[moduleCount - y - 1][x] = transformed[iy][ix];
@@ -1507,7 +1558,7 @@ void correctToPointOnPattern(Img<bool> transformed, Vector &topLeft, Vector &top
 }
 
 
-void floodFill(Img<bool> &img,Img<RGB_Pixel> &debug, Vector point, int &minX, int &maxX, int &minY, int &maxY) {
+void floodFill(Img<bool> &img, Img<RGB_Pixel> &debug, Vector point, int &minX, int &maxX, int &minY, int &maxY) {
     int width = img.Width();
     int height = img.Height();
 
@@ -1565,16 +1616,16 @@ void printQRCode(Img<bool> &croppedQRCode) {
 Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {
 
 
-     int minX = 1000000;
-     int minY = 1000000;
-     int maxX = 0;
-     int maxY = 0;
+    int minX = 1000000;
+    int minY = 1000000;
+    int maxX = 0;
+    int maxY = 0;
 
     for (ObjectProperties qrCode: qrCodeL) {
-        minX = min(minX, (int)qrCode.x_min);
-        minY = min(minY, (int)qrCode.y_min);
-        maxX = max(maxX, (int)qrCode.x_max);
-        maxY = max(maxY, (int)qrCode.y_max);
+        minX = min(minX, (int) qrCode.x_min);
+        minY = min(minY, (int) qrCode.y_min);
+        maxX = max(maxX, (int) qrCode.x_max);
+        maxY = max(maxY, (int) qrCode.y_max);
     }
     double expansionX = (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
     double expansionY = (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
@@ -1584,10 +1635,10 @@ Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {
     minY = max(minY - expansionY, 0.0);
 
 // Ensure maxX and maxY do not exceed image boundaries
-    maxX = min(maxX + expansionX, (double)CurrentImageWidth);
-    maxY = min(maxY + expansionY, (double)CurrentImageHeight);
+    maxX = min(maxX + expansionX, (double) CurrentImageWidth);
+    maxY = min(maxY + expansionY, (double) CurrentImageHeight);
 
-    Img<bool> croppedImg(maxX - minX,maxY - minY);
+    Img<bool> croppedImg(maxX - minX, maxY - minY);
     for (int y = minY; y < maxY; y++) {
         for (int x = minX; x < maxX; x++) {
             croppedImg[y - minY][x - minX] = img[y][x];
@@ -1622,6 +1673,7 @@ int main(int argc, char *argv[]) {
             "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
 //            "E:\\Unity\\UnityProjects\\QRScanner\\test2\\test2",
 //            "E:\\Unity\\UnityProjects\\QRScanner\\test3\\test3",
+//            "E:\\Unity\\UnityProjects\\QRScanner\\test4\\test4",
             "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
             "E:\\Unity\\UnityProjects\\QRScanner\\ffb_rotated\\ffb_r"
     };
@@ -1999,13 +2051,13 @@ int main(int argc, char *argv[]) {
 
         //Flood Fill to determine acurate bounds
         int minX, maxX, minY, maxY;
-        floodFill(transformed,vis, topLeft, minX, maxX, minY, maxY);
+        floodFill(transformed, vis, topLeft, minX, maxX, minY, maxY);
         Vector topLeftmin = Vector(minX, minY, 0);
         Vector topLeftMax = Vector(maxX, maxY, 0);
-        floodFill(transformed,vis, topRight, minX, maxX, minY, maxY);
+        floodFill(transformed, vis, topRight, minX, maxX, minY, maxY);
         Vector topRightmin = Vector(minX, minY, 0);
         Vector topRightMax = Vector(maxX, maxY, 0);
-        floodFill(transformed,vis, bottomLeft, minX, maxX, minY, maxY);
+        floodFill(transformed, vis, bottomLeft, minX, maxX, minY, maxY);
         Vector bottomLeftmin = Vector(minX, minY, 0);
         Vector bottomLeftMax = Vector(maxX, maxY, 0);
 
@@ -2016,7 +2068,8 @@ int main(int argc, char *argv[]) {
         float moduleSizeX;
         float moduleSizeY;
         int moduleCount;
-        calculateModuleSize(moduleSizeX, moduleSizeY, moduleCount, topLeftMax, bottomLeftmin, topRightMax,topRightmin, topLeftmin);
+        calculateModuleSize(moduleSizeX, moduleSizeY, moduleCount, topLeftMax, bottomLeftmin, topRightMax, topRightmin,
+                            topLeftmin);
 
         cout << "Module Count: " << moduleCount << endl;
         cout << "Module Size X: " << moduleSizeX << endl;
