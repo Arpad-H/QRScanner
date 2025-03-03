@@ -11,6 +11,6 @@
 -- Check for working CXX compiler: D:/Program Files (x86)/JetBrains/CLion/bin/mingw/bin/g++.exe - skipped
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
--- Configuring done (10.3s)
+-- Configuring done (4.2s)
 -- Generating done (0.0s)
 -- Build files have been written to: E:/Unity/UnityProjects/QRScanner/cmake-build-debug

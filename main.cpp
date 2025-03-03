@@ -763,6 +763,27 @@ Img<unsigned char> medianBlur(const Img<unsigned char> &gray) {
 }
 
 
+void DrawLines(Img<bool> &image, const vector<Line> &lines) {
+    //  cout << "Drawing lines " << lines.size() << endl;
+    const unsigned int width = image.Width();
+    const unsigned int height = image.Height();
+
+    for (const auto &line: lines) {
+        double radian = line.theta;
+        double cos_theta = cos(radian);
+        double sin_theta = sin(radian);
+
+        for (unsigned int y = 0; y < height; ++y) {
+            for (unsigned int x = 0; x < width; ++x) {
+                double rho = x * cos_theta + y * sin_theta;
+                if (abs(rho - line.rho) < 1) {
+                    image[y][x] = true;
+                }
+            }
+        }
+    }
+}
+
 Img<bool> optimal_threshold(const Img<unsigned char> &gray_image) {
 
     int imageWidth = gray_image.Width();
@@ -808,6 +829,7 @@ Img<bool> optimal_threshold(const Img<unsigned char> &gray_image) {
     return binary_image;
 }
 
+
 Img<bool> edgeDetection(const Img<bool> &binary) {
     const unsigned int width = binary.Width();
     const unsigned int height = binary.Height();
@@ -839,17 +861,6 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
     return edges;
 }
 
-//unsigned int ComputePercentileThreshold(const vector<vector<unsigned int>> &hough, double percentile) {
-//    vector<unsigned int> allVotes;
-//
-//    for (const auto &row : hough) {
-//        allVotes.insert(allVotes.end(), row.begin(), row.end());
-//    }
-//
-//    std::nth_element(allVotes.begin(), allVotes.begin() + allVotes.size() * percentile, allVotes.end());
-//    return allVotes[allVotes.size() * percentile];
-//}
-
 vector<Line>
 ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rho_max, unsigned int theta_dim,
                       unsigned int threshold) {
@@ -871,13 +882,32 @@ ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rh
 //
 //    threshold = mean + 2 * stddev;
 //    cout << "Threshold: " << threshold << endl;
+//    vector<Line> test;
+//    for (unsigned int rho = 0; rho < hough.size(); ++rho) {
+//        for (unsigned int theta = 0; theta < theta_dim; ++theta) {
+//            if (((theta < 10 || (theta > 80 && theta < 100) || (theta > 170 && theta < 190) ||
+//                  (theta > 260 && theta < 280) || theta > 350))) {
+//                test.push_back({(double) (rho - rho_max), theta * M_PI / 180.0});
+//            }
+//        }
+//    }
+int sum = 0;
+    int count = 0;
+    for (unsigned int rho = 0; rho < hough.size(); ++rho) {
+        for (unsigned int theta = 0; theta < theta_dim; ++theta) {
+            sum += hough[rho][theta];
+            if (hough[rho][theta] > 0) count++;
+        }
+    }
+    threshold = (sum / count)*3 ;
+    cout << "threshold: " << threshold << endl;
 
     vector<Line> detected_lines;
-#pragma omp parallel
+    #pragma omp parallel
     {
         vector<Line> local_lines; // Thread-local storage to reduce contention
 
-#pragma omp for
+    #pragma omp for
         for (unsigned int rho = 0; rho < hough.size(); ++rho) {
             for (unsigned int theta = 0; theta < theta_dim; ++theta) {
                 if (hough[rho][theta] > threshold &&
@@ -889,32 +919,11 @@ ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rh
         }
 
         // Merge local_lines into the main detected_lines vector in a thread-safe way
-#pragma omp critical
+    #pragma omp critical
         detected_lines.insert(detected_lines.end(), local_lines.begin(), local_lines.end());
     }
     cout << "Detected lines: " << detected_lines.size() << endl;
     return detected_lines;
-}
-
-void DrawLines(Img<bool> &image, const vector<Line> &lines) {
-    //  cout << "Drawing lines " << lines.size() << endl;
-    const unsigned int width = image.Width();
-    const unsigned int height = image.Height();
-
-    for (const auto &line: lines) {
-        double radian = line.theta;
-        double cos_theta = cos(radian);
-        double sin_theta = sin(radian);
-
-        for (unsigned int y = 0; y < height; ++y) {
-            for (unsigned int x = 0; x < width; ++x) {
-                double rho = x * cos_theta + y * sin_theta;
-                if (abs(rho - line.rho) < 1) {
-                    image[y][x] = true;
-                }
-            }
-        }
-    }
 }
 
 bool doesLineIntersectBox(const Line &line, const ObjectProperties &box, float error_margin = 10.0) {
@@ -1050,6 +1059,7 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
         }
     }
 
+
     {
         Img<bool> hough_vis(CurrentImageWidth, CurrentImageHeight);
         for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
@@ -1057,7 +1067,6 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
                 hough_vis[y][x] = false;
             }
         }
-//    DrawLines(hough_vis, lines);
         DrawLines(hough_vis, edges);
         try {
             string t = filepath + "_houghtest.bmp";
@@ -1067,8 +1076,6 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
             cerr << "Fehler beim Schreiben von hough.bmp: " << strerror(errno) << endl;
         }
     }
-
-
 
 
     //Visualize(corners);
@@ -1098,10 +1105,16 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
         maxX = max(maxX, qrCode.x_max);
         maxY = max(maxY, qrCode.y_max);
     }
-    minX -= (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
-    minY -= (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
-    maxX += (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
-    maxY += (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
+    double expansionX = (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
+    double expansionY = (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
+
+// Ensure minX and minY do not go negative
+    minX = max(minX - expansionX, 0.0);
+    minY = max(minY - expansionY, 0.0);
+
+// Ensure maxX and maxY do not exceed image boundaries
+    maxX = min(maxX + expansionX, (double)CurrentImageWidth);
+    maxY = min(maxY + expansionY, (double)CurrentImageHeight);
 
     // Hough Transform
     for (unsigned int y = minY; y < maxY; ++y) {
@@ -1260,9 +1273,9 @@ int roundToNearesValidModuleCount(int moduleCount) {
 }
 
 void calculateModuleSize(float &modulesizeX, float &modulesizeY, int &modulecount,
-                         Vector topLeftMax, Vector bottomLeftMin, Vector topRightMax, Vector topRightMin) {
+                         Vector topLeftMax, Vector bottomLeftMin, Vector topRightMax, Vector topRightMin,Vector topLeftMin) {
 
-    float dx1 = topLeftMax.X - bottomLeftMin.X;
+    float dx1 = topLeftMax.X - topLeftMin.X;
 //    float dx2 = qrCodeL[1].x_max - qrCodeL[1].x_min;
 //    float avg_dx = (dx1 + dx2) / 2;
     modulesizeX = dx1 / 7;
@@ -1280,6 +1293,8 @@ void calculateModuleSize(float &modulesizeX, float &modulesizeY, int &modulecoun
     float modulsY = dy3 / modulesizeY;
 
     modulecount = (modulsX + modulsY) / 2;
+    cout << "Modules x " << modulsX << endl;
+    cout << "Modules y " << modulsY << endl;
     modulecount = roundToNearesValidModuleCount(modulecount);
 
 
@@ -1383,7 +1398,7 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
         //Adjustment for the first line
         int ix2 = baseX + adjustment.X + initialAdjustment.X;
         int iy2 = baseY - (moduleSizeY) * y + adjustment.Y - initialAdjustment.Y;
-        if (transformed[iy2][ix2]){
+        if (transformed[iy2][ix2]) {
             float distanceLeft = 0;
             float dy = iy2;
             float dx = ix2;
@@ -1439,7 +1454,7 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
         }
         lastSample = transformed[baseY][baseX];
 
-        adjustment.X =0;
+        adjustment.X = 0;
 
     }
     Visualize(vis, "vis", Vector(0, 255, 255));
@@ -1451,32 +1466,48 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
 void correctToPointOnPattern(Img<bool> transformed, Vector &topLeft, Vector &topRight, Vector &bottomLeft,
                              Vector &bottomRight) {
 
-    auto findCornerSpiral = [&](Vector &corner) {
-        int radius = 20;
-        for (int r = 1; r <= radius; ++r) {
-            for (int dx = -r; dx <= r; ++dx) {
-                Vector newCorner1 = corner + Vector(dx, -r, 0);
-                Vector newCorner2 = corner + Vector(dx, r, 0);
-                if (transformed[newCorner1.Y][newCorner1.X]) corner = newCorner1;
-                if (transformed[newCorner2.Y][newCorner2.X]) corner = newCorner2;
-            }
-            for (int dy = -r; dy <= r; ++dy) {
-                Vector newCorner1 = corner + Vector(-r, dy, 0);
-                Vector newCorner2 = corner + Vector(r, dy, 0);
-                if (transformed[newCorner1.Y][newCorner1.X]) corner = newCorner1;
-                if (transformed[newCorner2.Y][newCorner2.X]) corner = newCorner2;
-            }
-        }
-    };
-
-    findCornerSpiral(topLeft);
-    findCornerSpiral(topRight);
-    findCornerSpiral(bottomLeft);
-    findCornerSpiral(bottomRight);
+//    auto findCornerSpiral = [&](Vector &corner) {
+//        int radius = 20;
+//        for (int r = 1; r <= radius; ++r) {
+//            for (int dx = -r; dx <= r; ++dx) {
+//                Vector newCorner1 = corner + Vector(dx, -r, 0);
+//                Vector newCorner2 = corner + Vector(dx, r, 0);
+//                if (transformed[newCorner1.Y][newCorner1.X]) corner = newCorner1;
+//                if (transformed[newCorner2.Y][newCorner2.X]) corner = newCorner2;
+//            }
+//            for (int dy = -r; dy <= r; ++dy) {
+//                Vector newCorner1 = corner + Vector(-r, dy, 0);
+//                Vector newCorner2 = corner + Vector(r, dy, 0);
+//                if (transformed[newCorner1.Y][newCorner1.X]) corner = newCorner1;
+//                if (transformed[newCorner2.Y][newCorner2.X]) corner = newCorner2;
+//            }
+//        }
+//    };
+//
+//    findCornerSpiral(topLeft);
+//    findCornerSpiral(topRight);
+//    findCornerSpiral(bottomLeft);
+//    findCornerSpiral(bottomRight);
+    while (!transformed[topLeft.Y][topLeft.X]) {
+        topLeft.Y--;
+        topLeft.X++;
+    }
+    while (!transformed[topRight.Y][topRight.X]) {
+        topRight.Y--;
+        topRight.X--;
+    }
+    while (!transformed[bottomLeft.Y][bottomLeft.X]) {
+        bottomLeft.Y++;
+        bottomLeft.X++;
+    }
+    while (!transformed[bottomRight.Y][bottomRight.X]) {
+        bottomRight.Y++;
+        bottomRight.X--;
+    }
 }
 
 
-void floodFill(Img<bool> &img, Vector point, int &minX, int &maxX, int &minY, int &maxY) {
+void floodFill(Img<bool> &img,Img<RGB_Pixel> &debug, Vector point, int &minX, int &maxX, int &minY, int &maxY) {
     int width = img.Width();
     int height = img.Height();
 
@@ -1515,6 +1546,7 @@ void floodFill(Img<bool> &img, Vector point, int &minX, int &maxX, int &minY, in
             // Check if it's part of the pattern and not visited
             if (img[next.Y][next.X] && !visited[next.Y][next.X]) {
                 visited[next.Y][next.X] = true;
+//                debug[next.Y][next.X] = RGB_Pixel(0, 255, 255);
                 q.push(next);
             }
         }
@@ -1533,23 +1565,29 @@ void printQRCode(Img<bool> &croppedQRCode) {
 Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {
 
 
-    unsigned int minX = 1000000;
-    unsigned int minY = 1000000;
-    unsigned int maxX = 0;
-    unsigned int maxY = 0;
+     int minX = 1000000;
+     int minY = 1000000;
+     int maxX = 0;
+     int maxY = 0;
 
     for (ObjectProperties qrCode: qrCodeL) {
-        minX = min(minX, qrCode.x_min);
-        minY = min(minY, qrCode.y_min);
-        maxX = max(maxX, qrCode.x_max);
-        maxY = max(maxY, qrCode.y_max);
+        minX = min(minX, (int)qrCode.x_min);
+        minY = min(minY, (int)qrCode.y_min);
+        maxX = max(maxX, (int)qrCode.x_max);
+        maxY = max(maxY, (int)qrCode.y_max);
     }
-    minX -= (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
-    minY -= (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
-    maxX += (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
-    maxY += (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
+    double expansionX = (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
+    double expansionY = (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
 
-    Img<bool> croppedImg(maxY - minY, maxX - minX);
+// Ensure minX and minY do not go negative
+    minX = max(minX - expansionX, 0.0);
+    minY = max(minY - expansionY, 0.0);
+
+// Ensure maxX and maxY do not exceed image boundaries
+    maxX = min(maxX + expansionX, (double)CurrentImageWidth);
+    maxY = min(maxY + expansionY, (double)CurrentImageHeight);
+
+    Img<bool> croppedImg(maxX - minX,maxY - minY);
     for (int y = minY; y < maxY; y++) {
         for (int x = minX; x < maxX; x++) {
             croppedImg[y - minY][x - minX] = img[y][x];
@@ -1581,7 +1619,7 @@ int main(int argc, char *argv[]) {
     };
 
     string files3[] = {
-//            "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
+            "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
 //            "E:\\Unity\\UnityProjects\\QRScanner\\test2\\test2",
 //            "E:\\Unity\\UnityProjects\\QRScanner\\test3\\test3",
             "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
@@ -1917,7 +1955,7 @@ int main(int argc, char *argv[]) {
         vector<Vector> corners = HoughTransform(edges_rotated, qrCodeL);
         if (corners.size() != 4) {
             cerr << "hough transform failed" << endl;
-            return -1;
+            continue;
         }
 
         Vector topLeft, topRight, bottomLeft, bottomRight;
@@ -1961,13 +1999,13 @@ int main(int argc, char *argv[]) {
 
         //Flood Fill to determine acurate bounds
         int minX, maxX, minY, maxY;
-        floodFill(transformed, topLeft, minX, maxX, minY, maxY);
+        floodFill(transformed,vis, topLeft, minX, maxX, minY, maxY);
         Vector topLeftmin = Vector(minX, minY, 0);
         Vector topLeftMax = Vector(maxX, maxY, 0);
-        floodFill(transformed, topRight, minX, maxX, minY, maxY);
+        floodFill(transformed,vis, topRight, minX, maxX, minY, maxY);
         Vector topRightmin = Vector(minX, minY, 0);
         Vector topRightMax = Vector(maxX, maxY, 0);
-        floodFill(transformed, bottomLeft, minX, maxX, minY, maxY);
+        floodFill(transformed,vis, bottomLeft, minX, maxX, minY, maxY);
         Vector bottomLeftmin = Vector(minX, minY, 0);
         Vector bottomLeftMax = Vector(maxX, maxY, 0);
 
@@ -1978,7 +2016,7 @@ int main(int argc, char *argv[]) {
         float moduleSizeX;
         float moduleSizeY;
         int moduleCount;
-        calculateModuleSize(moduleSizeX, moduleSizeY, moduleCount, topLeftMax, bottomLeftmin, topRightMax, topRightmin);
+        calculateModuleSize(moduleSizeX, moduleSizeY, moduleCount, topLeftMax, bottomLeftmin, topRightMax,topRightmin, topLeftmin);
 
         cout << "Module Count: " << moduleCount << endl;
         cout << "Module Size X: " << moduleSizeX << endl;
