@@ -839,29 +839,40 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
     return edges;
 }
 
+//unsigned int ComputePercentileThreshold(const vector<vector<unsigned int>> &hough, double percentile) {
+//    vector<unsigned int> allVotes;
+//
+//    for (const auto &row : hough) {
+//        allVotes.insert(allVotes.end(), row.begin(), row.end());
+//    }
+//
+//    std::nth_element(allVotes.begin(), allVotes.begin() + allVotes.size() * percentile, allVotes.end());
+//    return allVotes[allVotes.size() * percentile];
+//}
+
 vector<Line>
 ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rho_max, unsigned int theta_dim,
                       unsigned int threshold) {
+
+
+//    double sum = 0, sum_sq = 0;
+//    int count = 0;
+//    for (const auto &row: hough) {
+//        for (unsigned int votes: row) {
+//            sum += votes;
+//            sum_sq += votes * votes;
+//            count++;
+//        }
+//    }
+//
+//    double mean = sum / count;
+//    double variance = (sum_sq / count) - (mean * mean);
+//    double stddev = std::sqrt(variance);
+//
+//    threshold = mean + 2 * stddev;
+//    cout << "Threshold: " << threshold << endl;
+
     vector<Line> detected_lines;
-
-    double sum = 0, sum_sq = 0;
-    int count = 0;
-    for (const auto &row: hough) {
-        for (unsigned int votes: row) {
-            sum += votes;
-            sum_sq += votes * votes;
-            count++;
-        }
-    }
-
-    double mean = sum / count;
-    double variance = (sum_sq / count) - (mean * mean);
-    double stddev = std::sqrt(variance);
-
-//    threshold = (mean + 2 * stddev) * 2.5;
-    cout << "Threshold: " << threshold << endl;
-
-
 #pragma omp parallel
     {
         vector<Line> local_lines; // Thread-local storage to reduce contention
@@ -1075,9 +1086,26 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
 
     vector<vector<unsigned int>> hough(rho_dim, vector<unsigned int>(theta_dim, 0));
 
+
+    unsigned int minY = 100000;
+    unsigned int maxY = 0;
+    unsigned int minX = 100000;
+    unsigned int maxX = 0;
+
+    for (ObjectProperties qrCode: qrCodeL) {
+        minX = min(minX, qrCode.x_min);
+        minY = min(minY, qrCode.y_min);
+        maxX = max(maxX, qrCode.x_max);
+        maxY = max(maxY, qrCode.y_max);
+    }
+    minX -= (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
+    minY -= (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
+    maxX += (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
+    maxY += (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
+
     // Hough Transform
-    for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
-        for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
+    for (unsigned int y = minY; y < maxY; ++y) {
+        for (unsigned int x = minX; x < maxX; ++x) {
             if (input[y][x]) {
                 for (int theta = 0; theta < theta_dim; ++theta) {
                     double radian = theta * M_PI / 180.0;
@@ -1343,8 +1371,7 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
             croppedQRCode[y][x] = false;
         }
     }
-//    moduleSizeX = round(moduleSizeX);
-//    moduleSizeY = round(moduleSizeY);
+
     float baseX = topLeft.X + moduleSizeX / 2;
     float baseY = topLeft.Y - moduleSizeY / 2;
     Vector adjustment(0, 0, 0);
@@ -1352,6 +1379,25 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
     vector<Vector> vis;
     bool lastSample = transformed[baseY][baseX];
     for (unsigned int y = 0; y < moduleCount; ++y) {
+
+        //Adjustment for the first line
+        int ix2 = baseX + adjustment.X + initialAdjustment.X;
+        int iy2 = baseY - (moduleSizeY) * y + adjustment.Y - initialAdjustment.Y;
+        if (transformed[iy2][ix2]){
+            float distanceLeft = 0;
+            float dy = iy2;
+            float dx = ix2;
+            while (transformed[dy][--dx]) {
+                distanceLeft++;
+                if (distanceLeft > moduleSizeX) {
+                    distanceLeft /= 2;
+                    break;
+                }
+            }
+            float distanceRight = moduleSizeX - distanceLeft;
+            adjustment.X += (distanceRight - distanceLeft) / 2.0f;
+        }
+
         for (unsigned int x = 0; x < moduleCount; ++x) {
 
             int ix = baseX + (moduleSizeX) * x + adjustment.X + initialAdjustment.X;
@@ -1359,18 +1405,15 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
 
 
             if (isSingleModule(transformed, moduleCount, moduleSizeX, moduleSizeY, ix, iy, topRight, bottomLeft)) {
+
                 adjustment += recenterSampler(transformed, moduleCount, moduleSizeX, moduleSizeY, ix, iy, topRight,
                                               bottomLeft);
-//                vis.push_back(temp);
-//                if (x == 0) {
-//                    initialAdjustment = adjustment;
-//                }
+
                 rgbtransformed[iy + 1][ix] = RGB_Pixel(0, 255, 0);
                 rgbtransformed[iy - 1][ix] = RGB_Pixel(0, 255, 0);
                 rgbtransformed[iy][ix + 1] = RGB_Pixel(0, 255, 0);
                 rgbtransformed[iy][ix - 1] = RGB_Pixel(0, 255, 0);
-//                ix = ix + adjustment.X + initialAdjustment.X;
-//                iy = iy + adjustment.Y + initialAdjustment.Y;
+
 
             } else if (lastSample != transformed[iy][ix]) {
                 float distanceLeft = 0;
@@ -1395,8 +1438,8 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
 
         }
         lastSample = transformed[baseY][baseX];
-//        adjustment.Y = 0; //TODO Figure out how to adjust form line to line
-        adjustment.X /= 2;
+
+        adjustment.X =0;
 
     }
     Visualize(vis, "vis", Vector(0, 255, 255));
