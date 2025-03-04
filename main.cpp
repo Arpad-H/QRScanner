@@ -20,8 +20,6 @@
 #include "Eigen/Dense"
 
 
-#include "QRdecoder.h"
-
 
 #define EPSILON  1e-9
 #define PI 3.14159265358979323846
@@ -49,26 +47,49 @@ struct Line {
 };
 
 
-void AssignProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
-                 Vector &topRight,
-                 Vector &bottomLeft) {
+/*
+ * Assigns the three objects to the three corners of a triangle
+ * @param a first object
+ * @param b second object
+ * @param c third object
+ * @out topLeft top left corner
+ * @out top right corner
+ * @out bottomLeft bottom left corner
+ */
+void AssignPropsToVectors(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c, Vector &topLeft,
+                          Vector &topRight,
+                          Vector &bottomLeft) {
     Vector av = a.center;
     Vector bv = b.center;
     Vector cv = c.center;
 
-// Step 1: Calculate distances between all points
+    Vector ab = bv - av;
+    Vector ac = cv - av;
+    Vector bc = cv - bv;
+
+
     float d1 = (bv - av).length(); // Distance AB
     float d2 = (cv - av).length(); // Distance AC
     float d3 = (cv - bv).length(); // Distance BC
 
-
     // Step 2: Identify the hypotenuse
     float max_d = max(d1, max(d2, d3));
+
     Vector midPoint;
 
+    // with the hypotenuse we can determine the top left corner
+    // A refrence point gets rotated around the top left corner
+    // the point with the longer distance to the refrence point is the top right corner
     if (max_d == d1) { // AB is the hypotenuse
-        midPoint = (av + bv) * 0.5f;
-        if ((cv - midPoint).length() > (av - midPoint).length()) {
+        midPoint = av + (ab * 0.5f);
+        Vector cm = cv - midPoint;
+        Matrix mrot;
+        mrot.rotationAxis(Vector(0, 0, 1), PI / 2);
+        cm = mrot * cm;
+        cm = cm + cv; //refrence point
+        vector<ObjectProperties> viz;
+
+        if ((cm - av).length() > (cm - bv).length()) {
             topLeft = cv;
             topRight = av;
             bottomLeft = bv;
@@ -79,8 +100,15 @@ void AssignProps(const ObjectProperties &a, const ObjectProperties &b, const Obj
         }
 
     } else if (max_d == d2) { // AC is the hypotenuse
-        midPoint = (av + cv) * 0.5f;
-        if ((bv - midPoint).length() > (av - midPoint).length()) {
+        midPoint = av + (ac * 0.5f);
+        Vector bm = bv - midPoint;
+        Matrix mrot;
+        mrot.rotationAxis(Vector(0, 0, 1), PI / 2);
+        bm = mrot * bm;
+        bm = bm + bv; //refrence point
+        vector<ObjectProperties> viz;
+
+        if ((bm - av).length() > (bm - cv).length()) {
             topLeft = bv;
             topRight = av;
             bottomLeft = cv;
@@ -90,8 +118,13 @@ void AssignProps(const ObjectProperties &a, const ObjectProperties &b, const Obj
             bottomLeft = av;
         }
     } else if (max_d == d3) { // BC is the hypotenuse
-        midPoint = (bv + cv) * 0.5f;
-        if ((av - midPoint).length() > (bv - midPoint).length()) {
+        midPoint = bv + (bc * 0.5f);
+        Vector am = av - midPoint;
+        Matrix mrot;
+        mrot.rotationAxis(Vector(0, 0, 1), PI / 2);
+        am = mrot * am;
+        am = am + av; //refrence point
+        if ((am - bv).length() > (am - cv).length()) {
             topLeft = av;
             topRight = bv;
             bottomLeft = cv;
@@ -100,16 +133,22 @@ void AssignProps(const ObjectProperties &a, const ObjectProperties &b, const Obj
             topRight = cv;
             bottomLeft = bv;
         }
+
     }
 }
 
 
-ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props, Img<RGB_Pixel> img) {
+/*
+ * Estimates the fourth corner of a rectangle
+ * @param props vector of the three corners
+ * @return ObjectProperties object with the estimated fourth corner
+ */
+ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props) {
     Vector topLeft;
     Vector topRight;
     Vector bottomLeft;
     Vector bottomRight;
-    AssignProps(props[0], props[1], props[2], topLeft, topRight, bottomLeft);
+    AssignPropsToVectors(props[0], props[1], props[2], topLeft, topRight, bottomLeft);
 
     int avgWidth =
             int(props[0].x_max - props[0].x_min + props[1].x_max - props[1].x_min + props[2].x_max - props[2].x_min) /
@@ -125,21 +164,21 @@ ObjectProperties EstimtateFourthCorner(vector<ObjectProperties> props, Img<RGB_P
     return obj;
 }
 
-
+/*
+ * Visualizes the points in the image
+ * @param vector of points(Vektors) to visualize
+ * @param desc description of the visualization
+ * @param color color of the points
+ */
 void Visualize(const vector<Vector> &points, string desc, Vector color = Vector(255, 0, 255)) {
 
     string filename;
-
     for (const auto &point: points) {
-
-
         vis[point.Y][point.X] = RGB_Pixel(color.X, color.Y, color.Z);
         vis[point.Y - 1][point.X] = RGB_Pixel(color.X, color.Y, color.Z);
         vis[point.Y + 1][point.X] = RGB_Pixel(color.X, color.Y, color.Z);
         vis[point.Y][point.X - 1] = RGB_Pixel(color.X, color.Y, color.Z);
         vis[point.Y][point.X + 1] = RGB_Pixel(color.X, color.Y, color.Z);
-
-
     }
 
     try {
@@ -154,8 +193,28 @@ void Visualize(const vector<Vector> &points, string desc, Vector color = Vector(
 
 }
 
-Img<RGB_Pixel>
-HighlightPotentialPatterns(const vector<ObjectProperties> &obj_props) {
+/*
+ * Converts an RGB image to a greyscale image
+ * @param img RGB image
+ * @return greyscale image
+ */
+Img<unsigned char> greyscale(Img<RGB_Pixel> img) {
+    Img<unsigned char> grey(img.Width(), img.Height());
+    for (unsigned int y = 0; y < img.Height(); ++y) {
+        for (unsigned int x = 0; x < img.Width(); ++x) {
+            grey[y][x] = static_cast<unsigned char>(0.299 * img[y][x].Red() + 0.587 * img[y][x].Green() + 0.114 * img[y][x].Blue());
+        }
+    }
+    return grey;
+}
+
+/*
+ * Visualizes ObjectProperties in the image with their bounding box
+ * @param vector of points(Vektors) to visualize
+ * @param desc description of the visualization
+ * @param color color of the points
+ */
+Img<RGB_Pixel> visualizeObjProps(const vector<ObjectProperties> &obj_props) {
 
     Img<RGB_Pixel> QRHighlited(CurrentImageWidth, CurrentImageHeight);
 
@@ -168,7 +227,6 @@ HighlightPotentialPatterns(const vector<ObjectProperties> &obj_props) {
                     QRHighlited[y][x] = RGB_Pixel(255, 0, 0);
                     QRHighlited[obj.center.Y][obj.center.X] = RGB_Pixel(0, 255, 0);
                 }
-//                    QRHighlited[y][x] = RGB_Pixel(255, 0, 0);
             }
 
         }
@@ -179,32 +237,38 @@ HighlightPotentialPatterns(const vector<ObjectProperties> &obj_props) {
     return QRHighlited;
 }
 
-
-bool IsSquare(const ObjectProperties &obj, const unsigned int MIN_AREA, const unsigned int MAX_AREA) {
+/*
+ * Checks if the object is a square based on the bounding box
+ * @param obj ObjectProperties object
+ * @param MIN_AREA minimum area of the object
+ * @param MAX_AREA maximum area of the object
+ * @return true if the object is a square
+ */
+bool isSquare(const ObjectProperties &obj, const unsigned int MIN_AREA, const unsigned int MAX_AREA) {
     unsigned int width = obj.x_max - obj.x_min + 1;
     unsigned int height = obj.y_max - obj.y_min + 1;
 
-    // Check square aspect ratio
     if (abs((int) width - (int) height) > max(width, height) * 0.2) {
         return false;
     }
 
-
-//    // Check size constraints
     if (obj.area < MIN_AREA || obj.area > MAX_AREA) {
         return false;
     }
-
     return true;
 }
 
-
-vector<ObjectProperties> GetObjectProperties(const Img<unsigned int> &label_image) {
+/*
+ * Gets the properties of the objects in the labell image
+ * @param label_image image with labeled objects
+ * @return vector of ObjectProperties objects
+ */
+vector<ObjectProperties> getObjectProperties(const Img<unsigned int> &labelImage) {
     map<unsigned int, ObjectProperties> objects;
 
-    for (unsigned int y = 0; y < label_image.Height(); y++) {
-        for (unsigned int x = 0; x < label_image.Width(); x++) {
-            unsigned int label = label_image[y][x];
+    for (unsigned int y = 0; y < labelImage.Height(); y++) {
+        for (unsigned int x = 0; x < labelImage.Width(); x++) {
+            unsigned int label = labelImage[y][x];
             if (label > 0) {
                 auto &obj = objects[label];
                 if (obj.area == 0) obj.touch_point = Vector(x, y, 0);
@@ -230,6 +294,16 @@ vector<ObjectProperties> GetObjectProperties(const Img<unsigned int> &label_imag
     return results;
 }
 
+/*
+ * Function from Lecture
+ * Labels the objects in the binary image
+ * @param label_image image with labeled objects
+ * @param touch_points vector of touch points
+ * @param object_sizes vector of object sizes
+ * @param connectivity connectivity of the objects
+ * @param binary_image binary image
+ * @return number of objects
+ */
 unsigned int Labelling(Img<unsigned int> &label_image, vector<pair<int, int> > &touch_points,
                        vector<unsigned int> &object_sizes, const unsigned int connectivity,
                        const Img<bool> &binary_image) {
@@ -329,6 +403,12 @@ unsigned int Labelling(Img<unsigned int> &label_image, vector<pair<int, int> > &
 }
 
 
+/*
+ * colors the label image to an RGB image
+ * @param label_image image with labeled objects
+ * @param colors vector of colors
+ * @return RGB image
+ */
 Img<RGB_Pixel> Labelimage_to_RGB(const Img<unsigned int> &label_image, vector<RGB_Pixel> colors) {
     const unsigned int width = label_image.Width();
     const unsigned int height = label_image.Height();
@@ -347,28 +427,38 @@ Img<RGB_Pixel> Labelimage_to_RGB(const Img<unsigned int> &label_image, vector<RG
     return Label_RGB;
 }
 
-
+/*
+ * Finds the potential finder patterns in the image
+ * @param obj_props vector of ObjectProperties objects
+ * @return vector of potential finder patterns
+ */
 vector<ObjectProperties> getPotentialFinderPatterns(const vector<ObjectProperties> &obj_props) {
     vector<ObjectProperties> potentialFinderPatterns;
     for (const auto &obj: obj_props) {
-        if (IsSquare(obj, 50, 10000)) {
+        if (isSquare(obj, 50, 10000)) { //TODO: adjust the area in a automatic way
             potentialFinderPatterns.push_back(obj);
         }
     }
     return potentialFinderPatterns;
 }
 
+/*
+ * Checks if the 3 objects form a L shape
+ * @param a first object
+ * @param b second object
+ * @param c third object
+ * @return true if the objects form a L shape
+ */
 bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c) {
-
 
     Vector topLeft;
     Vector topRight;
     Vector bottomLeft;
-    AssignProps(a, b, c, topLeft, topRight, bottomLeft);
+    AssignPropsToVectors(a, b, c, topLeft, topRight, bottomLeft);
 
 
     float dot = ((topLeft - topRight).normalize()).dot((topLeft - bottomLeft).normalize());
-    //  cout << "dot: " << dot << endl;
+
     if (dot - 0.1 < 0 && dot + 0.1 > 0) {
         if ((topLeft - topRight).length() / (topLeft - bottomLeft).length() > 0.9 &&
             (topLeft - topRight).length() / (topLeft - bottomLeft).length() < 1.1) {
@@ -380,6 +470,15 @@ bool IsLShape(const ObjectProperties &a, const ObjectProperties &b, const Object
 
 }
 
+/*
+ * Assigns the three objects to the three corners of a triangle. similar to AssignPropstoVectors but with ObjectProperties
+ * @param a first object
+ * @param b second object
+ * @param c third object
+ * @out topLeft top left corner
+ * @out top right corner
+ * @out bottomLeft bottom left corner
+ */
 void AssignPropstoProps(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c,
                         ObjectProperties &topLeft,
                         ObjectProperties &topRight,
@@ -388,13 +487,13 @@ void AssignPropstoProps(const ObjectProperties &a, const ObjectProperties &b, co
     Vector bv = b.center;
     Vector cv = c.center;
 
-// Step 1: Calculate distances between all points
+
     float d1 = (bv - av).length(); // Distance AB
     float d2 = (cv - av).length(); // Distance AC
     float d3 = (cv - bv).length(); // Distance BC
 
 
-    // Step 2: Identify the hypotenuse
+
     float max_d = max(d1, max(d2, d3));
     Vector midPoint;
 
@@ -435,15 +534,19 @@ void AssignPropstoProps(const ObjectProperties &a, const ObjectProperties &b, co
     }
 }
 
-
+/*
+ * Finds the L shaped patterns in the image
+ * @param obj_props vector of ObjectProperties objects
+ * @return vector of L shaped patterns
+ */
 vector<ObjectProperties> FindLShapedPatterns(const vector<ObjectProperties> &obj_props) {
-
 
     vector<ObjectProperties> bestPatterns;
     float bestScore = 0;
     for (int i = 0; i < obj_props.size(); i++) {
         for (int j = i + 1; j < obj_props.size(); j++) {
             for (int k = j + 1; k < obj_props.size(); k++) {
+
                 if (IsLShape(obj_props[i], obj_props[j], obj_props[k])) {
                     float smallest = min(obj_props[i].area, min(obj_props[j].area, obj_props[k].area));
 
@@ -466,95 +569,34 @@ vector<ObjectProperties> FindLShapedPatterns(const vector<ObjectProperties> &obj
     return bestPatterns;
 }
 
+/*
+ * Returns the angle of the L shaped pattern so that top left and top right are aligned with the x-axis
+ * @param a first object
+ * @param b second object
+ * @param c third object
+ * @return angle of the L shaped pattern
+ */
 float IsRotated(const ObjectProperties &a, const ObjectProperties &b, const ObjectProperties &c) {
-    Vector av = a.center;
-    Vector bv = b.center;
-    Vector cv = c.center;
 
-    Vector ab = bv - av;
-    Vector ac = cv - av;
-    Vector bc = cv - bv;
-
-// Step 1: Calculate distances between all points
-    float d1 = (bv - av).length(); // Distance AB
-    float d2 = (cv - av).length(); // Distance AC
-    float d3 = (cv - bv).length(); // Distance BC
-    // Step 2: Identify the hypotenuse
-    float max_d = max(d1, max(d2, d3));
     Vector topLeft, topRight, bottomLeft;
-    Vector midPoint;
+    AssignPropsToVectors(a, b, c, topLeft, topRight, bottomLeft);
 
-    if (max_d == d1) { // AB is the hypotenuse
-        midPoint = av + (ab * 0.5f);
-        Vector cm = cv - midPoint;
-        Matrix mrot;
-        // cout << "cm: " << cm.X << " " << cm.Y << " " << cm.Z << endl;
-        mrot.rotationAxis(Vector(0, 0, 1), PI / 2);
-        cm = mrot * cm;
-        cm = cm + cv; //refrence point
-        vector<ObjectProperties> viz;
-
-
-        if ((cm - av).length() > (cm - bv).length()) {
-            topLeft = cv;
-            topRight = av;
-            bottomLeft = bv;
-        } else {
-            topLeft = cv;
-            topRight = bv;
-            bottomLeft = av;
-        }
-
-    } else if (max_d == d2) { // AC is the hypotenuse
-        midPoint = av + (ac * 0.5f);
-        Vector bm = bv - midPoint;
-        Matrix mrot;
-        mrot.rotationAxis(Vector(0, 0, 1), PI / 2);
-        bm = mrot * bm;
-        bm = bm + bv; //refrence point
-        vector<ObjectProperties> viz;
-
-        if ((bm - av).length() > (bm - cv).length()) {
-            topLeft = bv;
-            topRight = av;
-            bottomLeft = cv;
-        } else {
-            topLeft = bv;
-            topRight = cv;
-            bottomLeft = av;
-        }
-    } else if (max_d == d3) { // BC is the hypotenuse
-        midPoint = bv + (bc * 0.5f);
-        Vector am = av - midPoint;
-        Matrix mrot;
-        mrot.rotationAxis(Vector(0, 0, 1), PI / 2);
-        am = mrot * am;
-        am = am + av; //refrence point
-        if ((am - bv).length() > (am - cv).length()) {
-            topLeft = av;
-            topRight = bv;
-            bottomLeft = cv;
-        } else {
-            topLeft = av;
-            topRight = cv;
-            bottomLeft = bv;
-        }
-
-    }
-    // Step 3: Calculate rotation angle
     Vector horizontal = Vector(1, 0, 0);
     Vector topEdge = topRight - topLeft;
     topEdge.normalize();
-    // cout << "topEdge: " << topEdge.X << " " << topEdge.Y << " " << topEdge.Z << endl;
 
-    float angle = acos(horizontal.dot(topEdge)); // Angle with x-axis
+    float angle = acos(horizontal.dot(topEdge));
     if (topEdge.Y < 0) {
-        angle = -angle; // Adjust for negative rotation
+        angle = -angle;
     }
     return angle;
 }
 
-
+/*
+ * Creates the RGB colors for the labels
+ * @param num_objects number of objects
+ * @return vector of RGB colors
+ */
 vector<RGB_Pixel> create_LabelColors(unsigned int num_objects) {
     vector<RGB_Pixel> colors; // enthaelt Farben in Reihenfolge des Farbwinkels
 
@@ -606,6 +648,11 @@ vector<RGB_Pixel> Values2ColorVector(const vector<VT> values) {
     return colors;
 }
 
+/*
+ * Creates a mirrored Structuring Element
+ * @param ImageWindow original Structuring Element
+ * @return mirrored Structuring Element
+ */
 vector<Position> mirror_SE(const vector<Position> &ImageWindow) {
     vector<Position> MirroredImageWindow(ImageWindow.size());
 
@@ -616,6 +663,12 @@ vector<Position> mirror_SE(const vector<Position> &ImageWindow) {
     return MirroredImageWindow;
 }
 
+/*
+ * closes the image
+ * @param src source image
+ * @param ImageWindow Structuring Element
+ * @return closed image
+ */
 template<typename Pixel>
 Img<Pixel> closing(const Img<Pixel> &src, const vector<Position> &ImageWindow) {
     Img<Pixel> closed;
@@ -629,16 +682,12 @@ Img<Pixel> closing(const Img<Pixel> &src, const vector<Position> &ImageWindow) {
     return closed;
 }
 
-// ---------------------------------------------------------------------------
-// Aufgabe 5: Code erstellen
-// Bilddifferenz
-// ---------------------------------------------------------------------------
-// Parameter:
-// [in]  l : Bild links vom Operator '-'
-// [in]  r : Bild rechts vom Operator '-'
-// Return:
-// Differenzbild
-// ---------------------------------------------------------------------------
+/*
+ * Subtracts two images
+ * @param l left image
+ * @param r right image
+ * @return difference image
+ */
 template<typename Pixel>
 Img<Pixel> operator-(const Img<Pixel> &l, const Img<Pixel> &r) {
     Img<Pixel> d(l.Width(), l.Height());
@@ -654,6 +703,12 @@ Img<Pixel> operator-(const Img<Pixel> &l, const Img<Pixel> &r) {
     return d;
 }
 
+/*
+ * Opens the image
+ * @param src source image
+ * @param ImageWindow Structuring Element
+ * @return opened image
+ */
 template<typename Pixel>
 Img<Pixel> opening(const Img<Pixel> &src, const vector<Position> &ImageWindow) {
     Img<Pixel> opened;
@@ -667,6 +722,12 @@ Img<Pixel> opening(const Img<Pixel> &src, const vector<Position> &ImageWindow) {
     return opened;
 }
 
+/*
+ * Erodes the objects in the image
+ * @param src source image
+ * @param ImageWindow Structuring Element
+ * @return eroded image
+ */
 template<typename Pixel>
 Img<Pixel> erode(const Img<Pixel> &src, const vector<Position> &ImageWindow) {
     Img<Pixel> eroded(src.Width(), src.Height());
@@ -692,6 +753,12 @@ Img<Pixel> erode(const Img<Pixel> &src, const vector<Position> &ImageWindow) {
     return eroded;
 }
 
+/*
+ * Dilates the objects in the image
+ * @param src source image
+ * @param ImageWindow Structuring Element
+ * @return dilated image
+ */
 template<typename Pixel>
 Img<Pixel> dilate(const Img<Pixel> &src, const vector<Position> &ImageWindow) {
     const unsigned int Width = src.Width();
@@ -717,6 +784,11 @@ Img<Pixel> dilate(const Img<Pixel> &src, const vector<Position> &ImageWindow) {
     return dilated;
 }
 
+/*
+ * Creates a round Structuring Element
+ * @param Diameter Diameter of the Structuring Element
+ * @return round Structuring Element
+ */
 vector<Position> create_round_SE(int Diameter) {
     vector<Position> ImageWindow;
 
@@ -737,7 +809,11 @@ vector<Position> create_round_SE(int Diameter) {
     return ImageWindow;
 }
 
-
+/*
+ * Performs a median blur on the image
+ * @param gray greyscale image
+ * @return blurred image
+ */
 Img<unsigned char> medianBlur(const Img<unsigned char> &gray) {
     const unsigned int width = gray.Width();
     const unsigned int height = gray.Height();
@@ -762,19 +838,22 @@ Img<unsigned char> medianBlur(const Img<unsigned char> &gray) {
     return blur;
 }
 
-
+/*
+ *
+ * Draws the lines in the image
+ * @param image image to draw the lines on
+ * @param lines vector of lines
+ */
 void DrawLines(Img<bool> &image, const vector<Line> &lines) {
-    //  cout << "Drawing lines " << lines.size() << endl;
-    const unsigned int width = image.Width();
-    const unsigned int height = image.Height();
 
+    //ChatGPT prompt: How do you draw lines from hough space in a binary image
     for (const auto &line: lines) {
         double radian = line.theta;
         double cos_theta = cos(radian);
         double sin_theta = sin(radian);
 
-        for (unsigned int y = 0; y < height; ++y) {
-            for (unsigned int x = 0; x < width; ++x) {
+        for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
+            for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
                 double rho = x * cos_theta + y * sin_theta;
                 if (abs(rho - line.rho) < 1) {
                     image[y][x] = true;
@@ -784,12 +863,16 @@ void DrawLines(Img<bool> &image, const vector<Line> &lines) {
     }
 }
 
-Img<bool> optimal_threshold(const Img<unsigned char> &gray_image) {
+/*
+ * Iterative Thresholding idea from ChatGPT prompt: whats a good way to threshold a qr code image
+ * calculates the optimal threshold for binarization
+ * @param gray_image greyscale image
+ * @return optimal threshold
+ */
+unsigned int optimal_threshold(const Img<unsigned char> &gray_image) {
 
-    int imageWidth = gray_image.Width();
-    int imageHeight = gray_image.Height();
 
-    unsigned int T = 128; // Initial threshold
+    unsigned int T = 128;
     unsigned int prev_T;
 
     do {
@@ -797,9 +880,8 @@ Img<bool> optimal_threshold(const Img<unsigned char> &gray_image) {
         unsigned int sum1 = 0, sum2 = 0;
         unsigned int count1 = 0, count2 = 0;
 
-        // Calculate means for pixels below and above threshold
-        for (unsigned int y = 0; y < imageHeight; ++y) {
-            for (unsigned int x = 0; x < imageWidth; ++x) {
+        for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
+            for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
                 unsigned char pixel = gray_image[y][x];
                 if (pixel < T) {
                     sum1 += pixel;
@@ -815,21 +897,36 @@ Img<bool> optimal_threshold(const Img<unsigned char> &gray_image) {
         unsigned int V2 = (count2 == 0) ? 0 : (sum2 / count2);
 
         T = (V1 + V2) / 2;
-    } while (T != prev_T); // Stop when threshold stabilizes
+    } while (T != prev_T);
 
-    Img<bool> binary_image(imageWidth, imageHeight);
+    return T;
 
-    // Binärbild erzeugen
-    for (unsigned int y = 0; y < imageHeight; ++y) {
-        for (unsigned int x = 0; x < imageWidth; ++x) {
+}
+
+/*
+ * Binarizes the greyscale image
+ * @param gray_image greyscale image
+ * @return binary image
+ */
+Img<bool> binarize(const Img<unsigned char> &gray_image) {
+
+    Img<bool> binary_image(CurrentImageWidth,CurrentImageHeight);
+
+    unsigned int T = optimal_threshold(gray_image);
+
+    for (unsigned int y = 0; y < CurrentImageHeight; ++y) {
+        for (unsigned int x = 0; x < CurrentImageWidth; ++x) {
             binary_image[y][x] = gray_image[y][x] > T;
         }
     }
-
     return binary_image;
 }
 
-
+/*
+ * Performs Edge Detection on the binary image
+ * @param binary binary image
+ * @return edge detected image
+ */
 Img<bool> edgeDetection(const Img<bool> &binary) {
     const unsigned int width = binary.Width();
     const unsigned int height = binary.Height();
@@ -841,7 +938,6 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
                 edges[y][x] = false;
                 continue;
             }
-
             bool edge = false;
             for (int dy = -1; dy <= 1; ++dy) {
                 for (int dx = -1; dx <= 1; ++dx) {
@@ -861,36 +957,17 @@ Img<bool> edgeDetection(const Img<bool> &binary) {
     return edges;
 }
 
+/*
+ * Extracts the strongest lines from the Hough space
+ * @param hough Hough space
+ * @param rho_max maximum rho value
+ * @param theta_dim theta dimension
+ * @return vector of lines
+ */
 vector<Line>
-ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rho_max, unsigned int theta_dim,
-                      unsigned int threshold) {
+ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rho_max, unsigned int theta_dim) {
 
 
-//    double sum = 0, sum_sq = 0;
-//    int count = 0;
-//    for (const auto &row: hough) {
-//        for (unsigned int votes: row) {
-//            sum += votes;
-//            sum_sq += votes * votes;
-//            count++;
-//        }
-//    }
-//
-//    double mean = sum / count;
-//    double variance = (sum_sq / count) - (mean * mean);
-//    double stddev = std::sqrt(variance);
-//
-//    threshold = mean + 2 * stddev;
-//    cout << "Threshold: " << threshold << endl;
-//    vector<Line> test;
-//    for (unsigned int rho = 0; rho < hough.size(); ++rho) {
-//        for (unsigned int theta = 0; theta < theta_dim; ++theta) {
-//            if (((theta < 10 || (theta > 80 && theta < 100) || (theta > 170 && theta < 190) ||
-//                  (theta > 260 && theta < 280) || theta > 350))) {
-//                test.push_back({(double) (rho - rho_max), theta * M_PI / 180.0});
-//            }
-//        }
-//    }
     int sum = 0;
     int count = 0;
     for (unsigned int rho = 0; rho < hough.size(); ++rho) {
@@ -899,10 +976,20 @@ ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rh
             if (hough[rho][theta] > 0) count++;
         }
     }
-    threshold = (sum / count) * 2.6;
+    unsigned int threshold = (sum / count) * 2.6; //TODO Find a more sophisticated way to determine the threshold
     cout << "threshold: " << threshold << endl;
 
     vector<Line> detected_lines;
+
+    // Parallelization done by ChatGPT. Prompt:  for (unsigned int rho = 0; rho < hough.size(); ++rho) {
+    //            for (unsigned int theta = 0; theta < theta_dim; ++theta) {
+    //                if (hough[rho][theta] > threshold &&
+    //                    ((theta < 10 || (theta > 80 && theta < 100) || (theta > 170 && theta < 190) ||
+    //                      (theta > 260 && theta < 280) || theta > 350))) {
+    //                    detected_lines.push_back({(double) (rho - rho_max), theta * M_PI / 180.0});
+    //                }
+    //            }
+    //        } parallelise this in c++
 #pragma omp parallel
     {
         vector<Line> local_lines; // Thread-local storage to reduce contention
@@ -926,29 +1013,38 @@ ExtractStrongestLines(const vector<vector<unsigned int>> &hough, unsigned int rh
     return detected_lines;
 }
 
+/*
+ * Determines if a line intersects a box
+ * @param line line
+ * @param box box
+ * @param error_margin error margin
+ * @return true if the line intersects the box
+ */
 bool doesLineIntersectBox(const Line &line, const ObjectProperties &box, float error_margin = 10.0) {
-    //double error_margin = 10.0;
-    double rho = line.rho, theta = line.theta;
+
+    double rho = line.rho;
+    double theta = line.theta;
     double cosTheta = cos(theta), sinTheta = sin(theta);
 
-    // Expand bounding box by error margin
+
     double x_min = box.x_min - error_margin;
     double x_max = box.x_max + error_margin;
     double y_min = box.y_min - error_margin;
     double y_max = box.y_max + error_margin;
 
-    // Handle vertical lines separately
-    if (std::abs(sinTheta) < 1e-6) {
+    // vertical lines
+    if (abs(sinTheta) < 1e-6) {
         double x = rho / cosTheta;
         return (x >= x_min && x <= x_max);
     }
 
-    // Handle horizontal lines separately
-    if (std::abs(cosTheta) < 1e-6) {
+    // horizontal lines
+    if (abs(cosTheta) < 1e-6) {
         double y = rho / sinTheta;
         return (y >= y_min && y <= y_max);
     }
 
+    //CahtGPT prompt: How do you check if a line in hough space intersects a box with its bounding box
     // Compute intersections
     double y_left = (-cosTheta / sinTheta) * x_min + (rho / sinTheta);
     double y_right = (-cosTheta / sinTheta) * x_max + (rho / sinTheta);
@@ -964,7 +1060,12 @@ bool doesLineIntersectBox(const Line &line, const ObjectProperties &box, float e
     return intersectsVertically || intersectsHorizontally;
 }
 
-
+/*
+ * Refines the QR code boundaries
+ * @param lines vector of lines
+ * @param qrCodeL vector of Object properties representing the bounding boxes of the finder patterns
+ * @return vector of corners of the QR code
+ */
 vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProperties> &qrCodeL) {
     ObjectProperties topLeft, topRight, bottomLeft;
     AssignPropstoProps(qrCodeL[0], qrCodeL[1], qrCodeL[2], topLeft, topRight, bottomLeft);
@@ -975,6 +1076,13 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
     vector<Vector> intersectionPointsBottomLeft;
     vector<Vector> intersectionPointsBottomRight;
 
+    //parallelization done by ChatGPT. Prompt: for (auto &line: lines) {
+    //        if (doesLineIntersectBox(line, qrCodeL[0], 50) || doesLineIntersectBox(line, qrCodeL[1], 50) ||
+    //            doesLineIntersectBox(line, qrCodeL[2], 50)) {
+    //            filteredLines.push_back(line);
+    //        }
+    //
+    //    } parallelise this in c++
 #pragma omp parallel
     {
         std::vector<Line> localFilteredLines; // Thread-local storage to avoid race conditions
@@ -997,7 +1105,7 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
         }
     }
 
-    //Determining the most left, right, top and bottom lines representing the QR code boundaries
+    //Determine the most extreme lines
     Line leftMostLine, rightMostLine, topMostLine, bottomMostLine;
     bool leftFound = false, rightFound = false, topFound = false, bottomFound = false;
 
@@ -1041,7 +1149,6 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
             double A2 = cos(L2.theta), B2 = sin(L2.theta), C2 = L2.rho;
 
 
-
             // Compute determinant
             double det = A1 * B2 - A2 * B1;
             if (fabs(det) < 1e-6) continue; // Parallel lines
@@ -1083,6 +1190,12 @@ vector<Vector> refineQRBounds(const vector<Line> &lines, const vector<ObjectProp
 
 }
 
+/*
+ * Performs the Hough Transform on the binary image
+ * @param input binary image
+ * @param qrCodeL vector of Object properties representing the bounding boxes of the finder patterns
+ * @return vector of corners of the QR code
+ */
 vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectProperties> &qrCodeL) {
 
 
@@ -1108,15 +1221,14 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
     double expansionX = (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
     double expansionY = (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
 
-// Ensure minX and minY do not go negative
+
     minX = max(minX - expansionX, 0.0);
     minY = max(minY - expansionY, 0.0);
 
-// Ensure maxX and maxY do not exceed image boundaries
     maxX = min(maxX + expansionX, (double) CurrentImageWidth);
     maxY = min(maxY + expansionY, (double) CurrentImageHeight);
 
-    // Hough Transform
+    // Hough Transform from ChatGPT prompt: How do you perform hough transform on a binary image in c++
     for (unsigned int y = minY; y < maxY; ++y) {
         for (unsigned int x = minX; x < maxX; ++x) {
             if (input[y][x]) {
@@ -1124,7 +1236,6 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
                     double radian = theta * M_PI / 180.0;
                     double rho = x * cos(radian) + y * sin(radian);
                     int rho_index = static_cast<int>(rho + rho_max);
-
                     if (rho_index >= 0 && rho_index < static_cast<int>(rho_dim)) {
                         hough[rho_index][theta]++;
                     }
@@ -1134,13 +1245,22 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
     }
 
     // Find strongest lines
-    vector<Line> lines = ExtractStrongestLines(hough, rho_max, theta_dim, 145);
+    vector<Line> lines = ExtractStrongestLines(hough, rho_max, theta_dim);
     vector<Vector> corners = refineQRBounds(lines, qrCodeL);
 
 
     return corners;
 }
 
+/*
+ * ChatGPT prompt: Matrix computeHomography(const vector<Vector> &corners, const vector<Vector> &correctedCorners) {
+ * } how do i compute homography given 4 points with xy coordinates. i dont want to use a library like opencv
+ *
+ * Calculates the Homography matrix
+ * @param corners vector of corners
+ * @param correctedCorners vector of corrected corners
+ * @return Homography matrix
+ */
 Eigen::Matrix3d computeHomography(const vector<Vector> &corners, const vector<Vector> &correctedCorners) {
     Eigen::MatrixXd A(8, 8);
     Eigen::VectorXd b(8);
@@ -1181,9 +1301,13 @@ Eigen::Matrix3d computeHomography(const vector<Vector> &corners, const vector<Ve
 
     return H;
 }
-
+/*
+ * Converts Eigen Matrix to Matrix
+ * @param matrix Eigen Matrix
+ * @return Matrix
+ */
 Matrix EigneMatrix3dToMatrix(Eigen::Matrix3d matrix) {
-    // cout << matrix << endl;
+
     Matrix m;
     m.identity();
     m.m00 = matrix(0, 0);
@@ -1201,16 +1325,27 @@ Matrix EigneMatrix3dToMatrix(Eigen::Matrix3d matrix) {
 
 }
 
+/*
+ * Determines the corners of the QR code
+ * @param p1 first corner
+ * @param p2 second corner
+ * @param p3 third corner
+ * @param p4 fourth corner
+ * @param topLeft top left corner
+ * @param topRight top right corner
+ * @param bottomLeft bottom left corner
+ * @param bottomRight bottom right corner
+ */
 void DetermineCorners(Vector &p1, Vector &p2, Vector &p3, Vector &p4,
                       Vector &topLeft, Vector &topRight, Vector &bottomLeft, Vector &bottomRight) {
-    std::vector<Vector> points = {p1, p2, p3, p4};
+    vector<Vector> points = {p1, p2, p3, p4};
 
-    // Sort by Y descending (top to bottom), then by X ascending (left to right)
-    std::sort(points.begin(), points.end(), [](const Vector &a, const Vector &b) {
+    // Sort top to bottom then left to right. Done by ChatGPT. Prompt:  sort these points by their y coordinate in descending order
+    sort(points.begin(), points.end(), [](const Vector &a, const Vector &b) {
         return (a.Y > b.Y) || (a.Y == b.Y && a.X < b.X);  // Reverse Y sort
     });
 
-    // First two are top points, last two are bottom points
+    // First two are top points
     if (points[0].X < points[1].X) {
         topLeft = points[0];
         topRight = points[1];
@@ -1219,6 +1354,7 @@ void DetermineCorners(Vector &p1, Vector &p2, Vector &p3, Vector &p4,
         topRight = points[0];
     }
 
+    //last two are bottom points
     if (points[2].X < points[3].X) {
         bottomLeft = points[2];
         bottomRight = points[3];
@@ -1228,20 +1364,26 @@ void DetermineCorners(Vector &p1, Vector &p2, Vector &p3, Vector &p4,
     }
 }
 
+/*
+ * Transforms the image
+ * @param img image
+ * @param matrix matrix
+ * @return transformed image
+ */
 Img<bool> TransformImage(Img<bool> img, Matrix matrix) {
+
     Img<bool> transformedImage(img.Width(), img.Height());
 
     for (unsigned int y = 0; y < img.Height(); ++y) {
         for (unsigned int x = 0; x < img.Width(); ++x) {
-            // Transform output pixel (x', y') back to original (x, y)
+
             Vector v = Vector(x, y, 1);
             Vector transformed = matrix * v;
 
-            // Normalize homogeneous coordinates
+            //should always be 1 but just in case
             float x_prime = transformed.X / transformed.Z;
             float y_prime = transformed.Y / transformed.Z;
 
-            // Nearest-neighbor interpolation (replace with bilinear if needed)
             int x_src = static_cast<int>(round(x_prime));
             int y_src = static_cast<int>(round(y_prime));
 
@@ -1254,6 +1396,11 @@ Img<bool> TransformImage(Img<bool> img, Matrix matrix) {
     return transformedImage;
 }
 
+/*
+ * Rounds the module count to the nearest valid module count
+ * @param moduleCount module count
+ * @return rounded module count
+ */
 int roundToNearesValidModuleCount(int moduleCount) {
 
     int closest = 21;
@@ -1272,23 +1419,32 @@ int roundToNearesValidModuleCount(int moduleCount) {
     return closest;
 }
 
+/*
+ * Calculates the module size
+ * @param modulesizeX module size x
+ * @param modulesizeY module size y
+ * @param modulecount module count
+ * @param topLeftMax top left max
+ * @param bottomLeftMin bottom left min
+ * @param topRightMax top right max
+ * @param topRightMin top right min
+ * @param topLeftMin top left min
+ */
 void calculateModuleSize(float &modulesizeX, float &modulesizeY, int &modulecount,
                          Vector topLeftMax, Vector bottomLeftMin, Vector topRightMax, Vector topRightMin,
                          Vector topLeftMin) {
 
     float dx1 = topLeftMax.X - topLeftMin.X;
-//    float dx2 = qrCodeL[1].x_max - qrCodeL[1].x_min;
-//    float avg_dx = (dx1 + dx2) / 2;
+
     modulesizeX = dx1 / 7;
 
     float dy1 = topLeftMax.Y - topRightMin.Y;
-//    float dy2 = qrCodeL[1].y_max - qrCodeL[1].y_min;
-//    float avg_dy = (dy1 + dy2) / 2;
+
     modulesizeY = dy1 / 7;
 
     float dx3 = topRightMax.X - bottomLeftMin.X;
     float dy3 = topLeftMax.Y - bottomLeftMin.Y;
-//    float avg_d = (dx3 + dy3) / 2;
+
 
     float modulsX = dx3 / modulesizeX;
     float modulsY = dy3 / modulesizeY;
@@ -1298,25 +1454,29 @@ void calculateModuleSize(float &modulesizeX, float &modulesizeY, int &modulecoun
     cout << "Modules y " << modulsY << endl;
     modulecount = roundToNearesValidModuleCount(modulecount);
 
-
     modulesizeX = dx3 / modulecount;
     modulesizeY = dy3 / modulecount;
 
-//    float testX = modulesizeX * modulecount;
-//    float dist1 = (Vector(topLeftMin.X + testX, topLeftMax.Y, 0) - Vector(topRightMax.X, topLeftMax.Y, 0)).X;
-//    testX = (dx3 / modulecount +1) * (modulecount +1);
-//    float dist2 = (Vector(topLeftMin.X + testX, topLeftMax.Y, 0) - Vector(topRightMax.X, topLeftMax.Y, 0)).X;
-//    if (dist1 > dist2) {
-//        modulecount++;
-//    }
 
 
 }
 
+/*
+ * Checks if a module is a single module
+ * @param transformed transformed image
+ * @param moduleCount module count
+ * @param moduleSizeX module size x
+ * @param moduleSizeY module size y
+ * @param ix x coordinate
+ * @param iy y coordinate
+ * @param topRight top right corner
+ * @param bottomLeft bottom left corner
+ * @return true if the module is a single module
+ */
 bool isSingleModule(Img<bool> &transformed, int moduleCount, float moduleSizeX, float moduleSizeY, float ix, float iy,
                     Vector topRight, Vector bottomLeft) {
     bool value = transformed[iy][ix];
-//    bool newValue = !value;
+
     if ((transformed[iy][ix] == transformed[iy + moduleSizeY * 0.8][ix] && iy + moduleSizeY * 0.8 < topRight.Y) ||
         (transformed[iy][ix] == transformed[iy - moduleSizeY * 0.8][ix] && iy - moduleSizeY * 0.8 > bottomLeft.Y) ||
         (transformed[iy][ix] == transformed[iy][ix + moduleSizeX * 0.8] && ix + moduleSizeX * 0.8 < topRight.X) ||
@@ -1325,7 +1485,18 @@ bool isSingleModule(Img<bool> &transformed, int moduleCount, float moduleSizeX, 
     }
     return true;
 }
-
+/*
+ * Recenter the sampler
+ * @param transformed transformed image
+ * @param moduleCount module count
+ * @param moduleSizeX module size x
+ * @param moduleSizeY module size y
+ * @param ix x coordinate
+ * @param iy y coordinate
+ * @param topRight top right corner
+ * @param bottomLeft bottom left corner
+ * @return recentered sampler
+ */
 Vector
 recenterSampler(Img<bool> &transformed, int moduleCount, float moduleSizeX, float moduleSizeY, float ix, float iy,
                 Vector topRight, Vector bottomLeft) {
@@ -1337,45 +1508,38 @@ recenterSampler(Img<bool> &transformed, int moduleCount, float moduleSizeX, floa
     float dy = iy;
     float dx = ix;
 
-//    float maxTravel = moduleCount;
     while ((transformed[iy][ix] == transformed[++dy][dx]) && dy < topRight.Y) {
-//        if (maxTravel == 0) return Vector(0, 0, 0);
-//        maxTravel--;
         distanceTop++;
-//        transformed[dy][ix] = !transformed[dy][ix];
     }
-//    maxTravel = moduleCount;
+
     dy = iy;
     dx = ix;
     while (transformed[iy][ix] == transformed[--dy][dx] && dy > bottomLeft.Y) {
-//        if (maxTravel == 0) return Vector(0, 0, 0);
-//        maxTravel--;
         distanceBottom++;
-//        transformed[dy][ix] = !transformed[dy][ix];
     }
-//    maxTravel = moduleCount;
+
     dy = iy;
     dx = ix;
     while (transformed[iy][ix] == transformed[dy][++dx] && dx < topRight.X) {
-//        if (maxTravel == 0) return Vector(0, 0, 0);
-//        maxTravel--;
         distanceRight++;
-//        transformed[iy][dx] = !transformed[iy][dx];
     }
-//    maxTravel = moduleCount;
+
     dy = iy;
     dx = ix;
     while (transformed[iy][ix] == transformed[dy][--dx] && dx > bottomLeft.X) {
-//        if (maxTravel == 0) return Vector(0, 0, 0);
-//        maxTravel--;
         distanceLeft++;
-//        transformed[iy][dx] = !transformed[iy][dx];
     }
+
     float newx = (distanceRight - distanceLeft) / 2.0f;
     float newy = (distanceTop - distanceBottom) / 2.0f;
     return Vector(newx, newy, 0);
 }
 
+/*
+ * Converts a boolean image to an RGB image
+ * @param img boolean image
+ * @return RGB image
+ */
 Img<RGB_Pixel> boolToRgb(Img<bool> &img) {
     Img<RGB_Pixel> rgb(img.Width(), img.Height());
     for (unsigned int y = 0; y < img.Height(); ++y) {
@@ -1386,16 +1550,33 @@ Img<RGB_Pixel> boolToRgb(Img<bool> &img) {
     return rgb;
 }
 
+/*
+ * Crops the image to the QR code
+ * @param rgbtransformed RGB transformed image for Debugging
+ * @param transformed transformed image
+ * @param moduleCount module count
+ * @param moduleSizeX module size x
+ * @param moduleSizeY module size y
+ * @param topLeft top left corner
+ * @param bottomLeft bottom left corner
+ * @param topRight top right corner
+ * @return cropped QR code
+ */
 Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, int moduleCount, float moduleSizeX,
                        float moduleSizeY, Vector topLeft,
                        Vector bottomLeft, Vector topRight) {
 
+    //if the module size is too small, increase the module count.
+    //can only be done once for now
+    //please dont hang me for using goto
     bool doOnce = false;
-    label:
+    resetSamplerWithNewModuleCount:
     if (doOnce) {
         moduleSizeX = (topRight.X - topLeft.X) / moduleCount;
         moduleSizeY = (topLeft.Y - bottomLeft.Y) / moduleCount;
     }
+
+    //NOT SETTING THE VALUES TOOK WAY TO LONG TO DIAGNOSE. IM NOT CRYING YOU ARE
     Img<bool> croppedQRCode(moduleCount, moduleCount);
     for (unsigned int y = 0; y < moduleCount; ++y) {
         for (unsigned int x = 0; x < moduleCount; ++x) {
@@ -1403,13 +1584,16 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
         }
     }
 
+    //adjusted so it starts in the middle of the first module
     float baseX = topLeft.X + moduleSizeX / 2;
     float baseY = topLeft.Y - moduleSizeY / 2;
+
     Vector adjustment(0, 0, 0);
     Vector previousInitialAdjustment(0, 0, 0);
-    vector<Vector> vis;
+    vector<Vector> vis; //for debugging
     bool lastSample = transformed[baseY][baseX];
     bool lastRowStartSample = lastSample;
+
     for (unsigned int y = 0; y < moduleCount; ++y) {
 
         //Adjustment for the first line
@@ -1432,12 +1616,9 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
             lastRowStartSample = true;
         } else {
             adjustment.X = previousInitialAdjustment.X;
-//            if (lastRowStartSample)
-//            lastRowStartSample = false;
-
         }
-        for (unsigned int x = 0; x < moduleCount; ++x) {
 
+        for (unsigned int x = 0; x < moduleCount; ++x) {
 
             int ix = baseX + (moduleSizeX) * x + adjustment.X;
             int iy = baseY - (moduleSizeY) * y + adjustment.Y;
@@ -1448,22 +1629,22 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
                     moduleCount += 4;
                     if (!doOnce) {
                         doOnce = true;
-                        goto label;
+                        goto resetSamplerWithNewModuleCount;
                     }
 
                 }
             }
 
+            //if the sample is a single module, recenter the sampler
             if (isSingleModule(transformed, moduleCount, moduleSizeX, moduleSizeY, ix, iy, topRight, bottomLeft)) {
 
                 adjustment += recenterSampler(transformed, moduleCount, moduleSizeX, moduleSizeY, ix, iy, topRight,
                                               bottomLeft);
-
+                //Debug
                 rgbtransformed[iy + 1][ix] = RGB_Pixel(0, 255, 0);
                 rgbtransformed[iy - 1][ix] = RGB_Pixel(0, 255, 0);
                 rgbtransformed[iy][ix + 1] = RGB_Pixel(0, 255, 0);
                 rgbtransformed[iy][ix - 1] = RGB_Pixel(0, 255, 0);
-
 
             } else if (lastSample != transformed[iy][ix]) {
                 float distanceLeft = 0;
@@ -1481,64 +1662,31 @@ Img<bool> cropToQRCode(Img<RGB_Pixel> &rgbtransformed, Img<bool> &transformed, i
                 adjustment.X += (distanceRight - distanceLeft) / 2.0f;
                 lastSample = transformed[iy][ix];
             }
-//            else if (transformed[iy][ix] != transformed[iy][ix + moduleSizeX]) {
-//                float distanceRight = 0;
-//                float dy = iy;
-//                float dx = ix;
-//                while (transformed[iy][ix] == transformed[dy][++dx]) {
-//                    distanceRight++;
-////                    if (distanceRight > moduleSizeX) {
-////                        distanceRight /= 2;
-////                        break;
-////                    }
-//
-//                }
-//                float distanceLeft = moduleSizeX - distanceRight;
-//                adjustment.X += (distanceRight - distanceRight) / 2.0f;
-//                lastSample = transformed[iy][ix];
-//            }
+
             rgbtransformed[iy][ix] = RGB_Pixel(255, 0, 0);
-
             croppedQRCode[moduleCount - y - 1][x] = transformed[iy][ix];
-
 
         }
         lastSample = transformed[baseY][baseX];
-
         adjustment.X = 0;
 
     }
-    Visualize(vis, "vis", Vector(0, 255, 255));
 
     return croppedQRCode;
 }
 
-
+/*
+ * Corrects the corners of the QR code. sometimes due to round corners the corners are not exactly on the pattern
+ *  this creeps them in closer to be on the pattern
+ *  @param transformed transformed image
+ *  @param topLeft top left corner
+ *  @param topRight top right corner
+ *  @param bottomLeft bottom left corner
+ *  @param bottomRight bottom right corner
+ */
 void correctToPointOnPattern(Img<bool> transformed, Vector &topLeft, Vector &topRight, Vector &bottomLeft,
                              Vector &bottomRight) {
 
-//    auto findCornerSpiral = [&](Vector &corner) {
-//        int radius = 20;
-//        for (int r = 1; r <= radius; ++r) {
-//            for (int dx = -r; dx <= r; ++dx) {
-//                Vector newCorner1 = corner + Vector(dx, -r, 0);
-//                Vector newCorner2 = corner + Vector(dx, r, 0);
-//                if (transformed[newCorner1.Y][newCorner1.X]) corner = newCorner1;
-//                if (transformed[newCorner2.Y][newCorner2.X]) corner = newCorner2;
-//            }
-//            for (int dy = -r; dy <= r; ++dy) {
-//                Vector newCorner1 = corner + Vector(-r, dy, 0);
-//                Vector newCorner2 = corner + Vector(r, dy, 0);
-//                if (transformed[newCorner1.Y][newCorner1.X]) corner = newCorner1;
-//                if (transformed[newCorner2.Y][newCorner2.X]) corner = newCorner2;
-//            }
-//        }
-//    };
-//
-//    findCornerSpiral(topLeft);
-//    findCornerSpiral(topRight);
-//    findCornerSpiral(bottomLeft);
-//    findCornerSpiral(bottomRight);
     while (!transformed[topLeft.Y][topLeft.X]) {
         topLeft.Y--;
         topLeft.X++;
@@ -1557,7 +1705,19 @@ void correctToPointOnPattern(Img<bool> transformed, Vector &topLeft, Vector &top
     }
 }
 
-
+/*
+ * BFS flood fill code from ChatGPT prompt: How do you implement flood fill algorithm in c++ on a binary image
+ * fills the area corresponding to the point provided
+ * determines the bounds of the area
+ * @param img image
+ * @param debug debug image
+ * @param point point
+ * @param minX min x
+ * @param maxX max x
+ * @param minY min y
+ * @param maxY max y
+ *
+ */
 void floodFill(Img<bool> &img, Img<RGB_Pixel> &debug, Vector point, int &minX, int &maxX, int &minY, int &maxY) {
     int width = img.Width();
     int height = img.Height();
@@ -1573,7 +1733,7 @@ void floodFill(Img<bool> &img, Img<RGB_Pixel> &debug, Vector point, int &minX, i
     q.push(point);
     visited[point.Y][point.X] = true;
 
-    // Initialize bounds
+
     minX = maxX = point.X;
     minY = maxY = point.Y;
 
@@ -1597,13 +1757,17 @@ void floodFill(Img<bool> &img, Img<RGB_Pixel> &debug, Vector point, int &minX, i
             // Check if it's part of the pattern and not visited
             if (img[next.Y][next.X] && !visited[next.Y][next.X]) {
                 visited[next.Y][next.X] = true;
-//                debug[next.Y][next.X] = RGB_Pixel(0, 255, 255);
+
                 q.push(next);
             }
         }
     }
 }
 
+/*
+ * Prints the QR code to the console
+ * @param croppedQRCode cropped QR code
+ */
 void printQRCode(Img<bool> &croppedQRCode) {
     for (unsigned int y = 0; y < croppedQRCode.Height(); ++y) {
         for (unsigned int x = 0; x < croppedQRCode.Width(); ++x) {
@@ -1613,6 +1777,12 @@ void printQRCode(Img<bool> &croppedQRCode) {
     }
 }
 
+/*
+ * Crops the image around the QR code where its expected to be
+ * @param img image
+ * @param qrCodeL vector of Object properties representing the bounding boxes of the finder patterns
+ * @return cropped image
+ */
 Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {
 
 
@@ -1630,11 +1800,11 @@ Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {
     double expansionX = (qrCodeL[0].x_max - qrCodeL[0].x_min) * 1.5;
     double expansionY = (qrCodeL[0].y_max - qrCodeL[0].y_min) * 1.5;
 
-// Ensure minX and minY do not go negative
+
     minX = max(minX - expansionX, 0.0);
     minY = max(minY - expansionY, 0.0);
 
-// Ensure maxX and maxY do not exceed image boundaries
+
     maxX = min(maxX + expansionX, (double) CurrentImageWidth);
     maxY = min(maxY + expansionY, (double) CurrentImageHeight);
 
@@ -1650,33 +1820,45 @@ Img<bool> cropAround(Img<bool> &img, vector<ObjectProperties> qrCodeL) {
 
 int main(int argc, char *argv[]) {
 
-
-    bool writeUC = false;
+    bool writeUC = true;
     bool writeMedian = true;
-    bool writeBool = false;
+    bool writeBool = true;
     bool writeLabelbild = true;
-    bool writeEdges = false;
-    bool writeHough = false;
-    bool writeHoughTest = false;
+    bool writeEdges = true;
+    bool writeHough = true;
+    bool writeHoughTest = true;
     bool writePotentialFinderPatterns = true;
     bool writeQRCodePosition = true;
 
-    string files[] = {
-//            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
-            //               "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test2\\test2",
-//                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
-            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",
-            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb_rotated\\ffb_r"
-    };
+    if (argc < 2) {
+        cerr << "Usage: " << argv[0] << " <file1> <file2> ..." << endl;
+        return 1;
+    }
 
-    string files3[] = {
-            "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
-//            "E:\\Unity\\UnityProjects\\QRScanner\\test2\\test2",
-//            "E:\\Unity\\UnityProjects\\QRScanner\\test3\\test3",
-//            "E:\\Unity\\UnityProjects\\QRScanner\\test4\\test4",
-            "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
-            "E:\\Unity\\UnityProjects\\QRScanner\\ffb_rotated\\ffb_r"
-    };
+    // Store file paths from command-line arguments
+    vector<string> files3;
+    for (int i = 1; i < argc; ++i) {
+        files3.push_back(argv[i]);
+    }
+
+
+//    string files[] = {
+////            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
+//            //               "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test2\\test2",
+////                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
+//            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",
+//            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb_rotated\\ffb_r"
+//    };
+//
+//    string files3[] = {
+//            "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
+////            "E:\\Unity\\UnityProjects\\QRScanner\\test2\\test2",
+////            "E:\\Unity\\UnityProjects\\QRScanner\\test3\\test3",
+////            "E:\\Unity\\UnityProjects\\QRScanner\\test4\\test4",
+//            "E:\\Unity\\UnityProjects\\QRScanner\\ffb\\Untitled",
+//            "E:\\Unity\\UnityProjects\\QRScanner\\ffb_rotated\\ffb_r"
+//    };
+
     string t;
 
     for (string &filename: files3) {
@@ -1688,27 +1870,26 @@ int main(int argc, char *argv[]) {
 
         //PREPROCESSING
         {
+            // read image
             filepath = filename.substr(0, filename.find_last_of("\\"));
-            // Bild einlesen
-
             try {
                 string fileWExtension = filename + ".bmp";
                 BmpRead(fileWExtension.c_str()) >> rgb;
                 cout << "Lese Datei: " << filename << endl;
             }
-
             catch (const char *s) {
                 cerr << "Fehler beim Lesen von " << filename << ": " << s << endl;
                 return -1;
             }
+
             CurrentImageWidth = rgb.Width();
             CurrentImageHeight = rgb.Height();
-            vis = Img<RGB_Pixel>(CurrentImageWidth, CurrentImageHeight);
-            // --------------------------------------------------------------------------------
-            // Binaeres Quellbild erzeugen
-            // --------------------------------------------------------------------------------
 
-            uc = ConvImg<unsigned char, RGB_Pixel>(rgb);
+            //helper image for debugging
+            vis = Img<RGB_Pixel>(CurrentImageWidth, CurrentImageHeight);
+
+           // convert to greyscale
+            uc = greyscale(rgb);
             if (writeUC) {
                 try {
                     t = filename + "_uc.bmp";
@@ -1720,8 +1901,7 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            vector<Position> quadratisches_Bildfenster;
-
+            // blur image
             median = medianBlur(uc);
             if (writeMedian) {
                 try {
@@ -1732,10 +1912,10 @@ int main(int argc, char *argv[]) {
                     cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
                     return -1;
                 }
-
             }
 
-            Binaerbild = optimal_threshold(median);
+            // binarize image
+            Binaerbild = binarize(median);
 
             //Invert image
             for (unsigned int y = 0; y < CurrentImageHeight; y++) {
@@ -1744,8 +1924,6 @@ int main(int argc, char *argv[]) {
                     p = not p;
                 }
             }
-
-//           opened = erode(Binaerbild, create_round_SE(3));
             if (writeBool) {
                 try {
                     t = filename + "_bool.bmp";
@@ -1759,23 +1937,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        //EDGE DETECTION
-        Img<bool> edges;
-        {
-            edges = edgeDetection(Binaerbild);
-            if (writeEdges) {
-                try {
-                    t = filename + "_edges.bmp";
-                    BmpWrite(t.c_str(), edges);
-                    cout << "Schreibe " << t << endl;
-                } catch (const char *s) {
-                    cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
-                    return -1;
-                }
-            }
-        }
-
-        //LABELLING
+        //LABELLING adapted from lecture
         Img<unsigned int> Labelbild;
         {
             const unsigned int H(40), B(500);
@@ -1800,11 +1962,6 @@ int main(int argc, char *argv[]) {
                 return -1;
             }
 
-            // ------------------------------------------------
-            // Zu Aufgabe 1: Labelling des Bildes durchfuehren
-            // ------------------------------------------------
-
-            ;
             vector<pair<int, int> > Antastpunkte;
             vector<unsigned int> Objektgroessen;
             int Objekte = Labelling(Labelbild, Antastpunkte, Objektgroessen, 8, Binaerbild);
@@ -1817,13 +1974,13 @@ int main(int argc, char *argv[]) {
                 return -1;
             }
             unsigned int num_objects = Objektgroessen.size();
-            // cout << "Gefundene Objekte: " << num_objects << endl;
-
 
             // Labelbild mit verschiedenen Farben fuer die Objekte erzeugen und ausgeben
             vector<RGB_Pixel> Farben = create_LabelColors(num_objects);
             Img<RGB_Pixel> LabelAnzeige = Labelimage_to_RGB(Labelbild, Farben);
-            for (unsigned int i = 0; i < Objektgroessen.size(); i++) { // Antastpunkte schwarz einzeichnen
+
+            for (unsigned int i = 0; i < Objektgroessen.size(); i++) {
+                // Antastpunkte schwarz einzeichnen
                 LabelAnzeige[Antastpunkte[i].second][Antastpunkte[i].first] = RGB_Pixel(0, 0, 0);
             }
 
@@ -1839,12 +1996,12 @@ int main(int argc, char *argv[]) {
         }
 
         //FIND POTENTIAL FINDER PATTERNS AND QR CODE POSITION
-        vector<ObjectProperties> qrCodeL;
+        vector<ObjectProperties> qrCodeL; // L-Shaped patterns
         Img<RGB_Pixel> QRCode;
         {
-            vector<ObjectProperties> obj_props = GetObjectProperties(Labelbild);
+            vector<ObjectProperties> obj_props = getObjectProperties(Labelbild);
             vector<ObjectProperties> potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
-            Img<RGB_Pixel> potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns);
+            Img<RGB_Pixel> potentialFinderPatternsVis = visualizeObjProps(potentialFinderPatterns);
 
             if (writePotentialFinderPatterns) {
                 try {
@@ -1859,7 +2016,7 @@ int main(int argc, char *argv[]) {
 
 
             qrCodeL = FindLShapedPatterns(potentialFinderPatterns);
-            QRCode = HighlightPotentialPatterns(qrCodeL);
+            QRCode = visualizeObjProps(qrCodeL);
 
 
             if (writeQRCodePosition) {
@@ -1919,7 +2076,9 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        //SECOND LABELLING
+        //SECOND LABELLING (i was to deep, this was not necessary and couldve been solved i na better way)
+        //TODO rotate the Properties instead of the image. redoing the process of finding the finder patterns is not necessary
+
         vector<ObjectProperties> potentialFinderPatterns;
         {
             Img<unsigned int> Labelbild_rotated;
@@ -1954,9 +2113,9 @@ int main(int argc, char *argv[]) {
                 return -1;
             }
 
-            vector<ObjectProperties> obj_props = GetObjectProperties(Labelbild_rotated);
+            vector<ObjectProperties> obj_props = getObjectProperties(Labelbild_rotated);
             potentialFinderPatterns = getPotentialFinderPatterns(obj_props);
-            Img<RGB_Pixel> potentialFinderPatternsVis = HighlightPotentialPatterns(potentialFinderPatterns);
+            Img<RGB_Pixel> potentialFinderPatternsVis = visualizeObjProps(potentialFinderPatterns);
             try {
                 t = filename + "_PotentialFinderPatterns_rotated.bmp";
                 BmpWrite(t.c_str(), potentialFinderPatternsVis);
@@ -1971,10 +2130,12 @@ int main(int argc, char *argv[]) {
         qrCodeL = FindLShapedPatterns(potentialFinderPatterns);
 
 
-        ObjectProperties o = EstimtateFourthCorner(qrCodeL, QRCode);
+        ObjectProperties o = EstimtateFourthCorner(qrCodeL);
         qrCodeL.push_back(o);
-        QRCode = HighlightPotentialPatterns(qrCodeL);
 
+
+        //Debug
+        QRCode = visualizeObjProps(qrCodeL);
         try {
             t = filename + "_QRCodePosition_rotated.bmp";
             BmpWrite(t.c_str(), QRCode);
@@ -1983,7 +2144,7 @@ int main(int argc, char *argv[]) {
             cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
             return -1;
         }
-
+        //idea was to crop the image around the QR code, but this was not done in the end to keep it simpler
         Img<bool> croppedBinary = cropAround(img, qrCodeL);
         try {
             t = filename + "_croppedBinary.bmp";
@@ -2004,18 +2165,19 @@ int main(int argc, char *argv[]) {
             return -1;
         }
 
+        //Hough Transform. due to the geometrical aproach this couldve been left out but was  a great exercise
         vector<Vector> corners = HoughTransform(edges_rotated, qrCodeL);
         if (corners.size() != 4) {
             cerr << "hough transform failed" << endl;
             continue;
         }
 
+
         Vector topLeft, topRight, bottomLeft, bottomRight;
         DetermineCorners(corners[0], corners[1], corners[2], corners[3], topLeft, topRight,
                          bottomLeft, bottomRight);
         vector<Vector> assignedCorners = {topLeft, topRight, bottomLeft,
                                           bottomRight}; //Assigned in order TL, TR, BL, BR
-
 
 
         vector<Vector> correctedCorners = {
@@ -2025,9 +2187,12 @@ int main(int argc, char *argv[]) {
                 Vector(topRight.X, bottomLeft.Y, 0)
         };
 
+        //Debug
         Visualize(correctedCorners, "correctedCorners", Vector(0, 255, 0));
         Visualize(corners, "corners", Vector(0, 0, 255));
 
+
+        //Perspective Transformation
         Eigen::Matrix3d perspectiveMatrix = computeHomography(assignedCorners, correctedCorners);
         Matrix m = EigneMatrix3dToMatrix(perspectiveMatrix);
         m.invert();
@@ -2050,7 +2215,7 @@ int main(int argc, char *argv[]) {
 
 
         //Flood Fill to determine acurate bounds
-        int minX, maxX, minY, maxY;
+        int minX, maxX, minY, maxY; //Bounds of the finder patterns. the lower left and top right corner being the min and max values respectively
         floodFill(transformed, vis, topLeft, minX, maxX, minY, maxY);
         Vector topLeftmin = Vector(minX, minY, 0);
         Vector topLeftMax = Vector(maxX, maxY, 0);
@@ -2084,13 +2249,15 @@ int main(int argc, char *argv[]) {
                                                Vector(topRightMax.X, topRightMax.Y, 0));
 
 
+        //Invert the produced image
         for (unsigned int y = 0; y < CurrentImageHeight; y++) {
             for (unsigned int x = 0; x < CurrentImageWidth; x++) {
                 bool &p = croppedQRCode[y][x];
                 p = not p;
             }
         }
-//        printQRCode(croppedQRCode);
+        printQRCode(croppedQRCode);
+
         try {
             t = filename + "_croppedQRCode.bmp";
             BmpWrite(t.c_str(), croppedQRCode);
@@ -2099,6 +2266,9 @@ int main(int argc, char *argv[]) {
             cerr << "Fehler beim Schreiben von " << t << ": " << strerror(errno) << endl;
             return -1;
         }
+        //Debug
+
+
         try {
             t = filename + "test.bmp";
             BmpWrite(t.c_str(), rgbTransformed);
