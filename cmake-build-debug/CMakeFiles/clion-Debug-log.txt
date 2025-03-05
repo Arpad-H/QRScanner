@@ -1,4 +1,4 @@
-"D:\Program Files (x86)\JetBrains\CLion\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=C:\Users\quint\.vcpkg-clion\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic -G "MinGW Makefiles" -S E:\Unity\UnityProjects\QRScanner -B E:\Unity\UnityProjects\QRScanner\cmake-build-debug
+C:\Users\quint\AppData\Local\Programs\CLion\bin\cmake\win\x64\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=C:\Users\quint\.vcpkg-clion\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic -G "MinGW Makefiles" -S C:\Users\quint\Documents\Studium\HSOS\QRScanner -B C:\Users\quint\Documents\Studium\HSOS\QRScanner\cmake-build-debug
 -- Configuring done (0.2s)
--- Generating done (0.0s)
--- Build files have been written to: E:/Unity/UnityProjects/QRScanner/cmake-build-debug
+-- Generating done (0.1s)
+-- Build files have been written to: C:/Users/quint/Documents/Studium/HSOS/QRScanner/cmake-build-debug

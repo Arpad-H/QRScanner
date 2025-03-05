@@ -866,7 +866,7 @@ void DrawLines(Img<bool> &image, const vector<Line> &lines) {
 
 /*
  * Iterative Thresholding idea from ChatGPT prompt: whats a good way to threshold a qr code image
- * calculates the optimal threshold for binarization
+ * implementation based on https://www.geeksforgeeks.org/image-thresholding-techniques-in-computer-vision/#8-iterative-thresholding
  * @param gray_image greyscale image
  * @return optimal threshold
  */
@@ -1256,7 +1256,7 @@ vector<Vector> HoughTransform(const Img<bool> &input, const vector<ObjectPropert
 /*
  * ChatGPT prompt: Matrix computeHomography(const vector<Vector> &corners, const vector<Vector> &correctedCorners) {
  * } how do i compute homography given 4 points with xy coordinates. i dont want to use a library like opencv
- *
+ * https://eigen.tuxfamily.org/dox/classEigen_1_1ColPivHouseholderQR.html
  * Calculates the Homography matrix
  * @param corners vector of corners
  * @param correctedCorners vector of corrected corners
@@ -1831,25 +1831,25 @@ int main(int argc, char *argv[]) {
     bool writePotentialFinderPatterns = true;
     bool writeQRCodePosition = true;
 
-    if (argc < 2) {
-        cerr << "Usage: " << argv[0] << " <file1> <file2> ..." << endl;
-        return 1;
-    }
+//    if (argc < 2) {
+//        cerr << "Usage: " << argv[0] << " <file1> <file2> ..." << endl;
+//        return 1;
+//    }
+//
+//    // Store file paths from command-line arguments
+//    vector<string> files3;
+//    for (int i = 1; i < argc; ++i) {
+//        files3.push_back(argv[i]);
+//    }
 
-    // Store file paths from command-line arguments
-    vector<string> files3;
-    for (int i = 1; i < argc; ++i) {
-        files3.push_back(argv[i]);
-    }
 
-
-//    string files[] = {
-////            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
-//            //               "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test2\\test2",
-////                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
-//            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",
-//            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb_rotated\\ffb_r"
-//    };
+    string files[] = {
+            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test\\test",
+            //               "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test2\\test2",
+//                      "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\test_r\\test_r",
+            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb\\Untitled",
+            "C:\\Users\\quint\\Documents\\Studium\\HSOS\\QRScanner\\ffb_rotated\\ffb_r"
+    };
 //
 //    string files3[] = {
 //            "E:\\Unity\\UnityProjects\\QRScanner\\test\\test",
@@ -1862,7 +1862,7 @@ int main(int argc, char *argv[]) {
 
     string t;
 
-    for (string &filename: files3) {
+    for (string &filename: files) {
 
         Img<bool> Binaerbild;
         Img<unsigned char> median;
