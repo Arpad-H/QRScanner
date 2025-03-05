@@ -8,14 +8,14 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/AviRead.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj.d"
-  "E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/AviWrite.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj.d"
-  "E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/BmpRead.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj.d"
-  "E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/BmpWrite.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj.d"
-  "E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/FFT.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj.d"
-  "E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/FileIO.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj.d"
-  "E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/Grafik.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj.d"
-  "E:/Unity/UnityProjects/QRScanner/lib/libBV/lib/SimpleFont.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj.d"
+  "C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/AviRead.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj.d"
+  "C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/AviWrite.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj.d"
+  "C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/BmpRead.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj.d"
+  "C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/BmpWrite.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj.d"
+  "C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/FFT.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj.d"
+  "C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/FileIO.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj.d"
+  "C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/Grafik.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj.d"
+  "C:/Users/quint/Documents/Studium/HSOS/QRScanner/lib/libBV/lib/SimpleFont.cxx" "CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj" "gcc" "CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
