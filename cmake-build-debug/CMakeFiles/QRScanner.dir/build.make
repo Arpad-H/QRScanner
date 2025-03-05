@@ -128,28 +128,12 @@ CMakeFiles/QRScanner.dir/Matrix.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/QRScanner.dir/Matrix.cpp.s"
 	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\Matrix.cpp -o CMakeFiles\QRScanner.dir\Matrix.cpp.s
 
-CMakeFiles/QRScanner.dir/QRdecoder.cpp.obj: CMakeFiles/QRScanner.dir/flags.make
-CMakeFiles/QRScanner.dir/QRdecoder.cpp.obj: CMakeFiles/QRScanner.dir/includes_CXX.rsp
-CMakeFiles/QRScanner.dir/QRdecoder.cpp.obj: E:/Unity/UnityProjects/QRScanner/QRdecoder.cpp
-CMakeFiles/QRScanner.dir/QRdecoder.cpp.obj: CMakeFiles/QRScanner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/QRScanner.dir/QRdecoder.cpp.obj"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/QRScanner.dir/QRdecoder.cpp.obj -MF CMakeFiles\QRScanner.dir\QRdecoder.cpp.obj.d -o CMakeFiles\QRScanner.dir\QRdecoder.cpp.obj -c E:\Unity\UnityProjects\QRScanner\QRdecoder.cpp
-
-CMakeFiles/QRScanner.dir/QRdecoder.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/QRScanner.dir/QRdecoder.cpp.i"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Unity\UnityProjects\QRScanner\QRdecoder.cpp > CMakeFiles\QRScanner.dir\QRdecoder.cpp.i
-
-CMakeFiles/QRScanner.dir/QRdecoder.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/QRScanner.dir/QRdecoder.cpp.s"
-	"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe" $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Unity\UnityProjects\QRScanner\QRdecoder.cpp -o CMakeFiles\QRScanner.dir\QRdecoder.cpp.s
-
 # Object files for target QRScanner
 QRScanner_OBJECTS = \
 "CMakeFiles/QRScanner.dir/main.cpp.obj" \
 "CMakeFiles/QRScanner.dir/Vector.cpp.obj" \
 "CMakeFiles/QRScanner.dir/Entzerren.cpp.obj" \
-"CMakeFiles/QRScanner.dir/Matrix.cpp.obj" \
-"CMakeFiles/QRScanner.dir/QRdecoder.cpp.obj"
+"CMakeFiles/QRScanner.dir/Matrix.cpp.obj"
 
 # External object files for target QRScanner
 QRScanner_EXTERNAL_OBJECTS =
@@ -158,13 +142,12 @@ QRScanner.exe: CMakeFiles/QRScanner.dir/main.cpp.obj
 QRScanner.exe: CMakeFiles/QRScanner.dir/Vector.cpp.obj
 QRScanner.exe: CMakeFiles/QRScanner.dir/Entzerren.cpp.obj
 QRScanner.exe: CMakeFiles/QRScanner.dir/Matrix.cpp.obj
-QRScanner.exe: CMakeFiles/QRScanner.dir/QRdecoder.cpp.obj
 QRScanner.exe: CMakeFiles/QRScanner.dir/build.make
 QRScanner.exe: liblibBV.a
 QRScanner.exe: CMakeFiles/QRScanner.dir/linkLibs.rsp
 QRScanner.exe: CMakeFiles/QRScanner.dir/objects1.rsp
 QRScanner.exe: CMakeFiles/QRScanner.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable QRScanner.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=E:\Unity\UnityProjects\QRScanner\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable QRScanner.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\QRScanner.dir\link.txt --verbose=$(VERBOSE)
 	C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/quint/.vcpkg-clion/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary E:/Unity/UnityProjects/QRScanner/cmake-build-debug/QRScanner.exe -installedDir C:/Users/quint/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/debug/bin -OutVariable out
 

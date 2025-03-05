@@ -1,0 +1,4 @@
+E:/Unity/UnityProjects/QRScanner/cmake-build-release/CMakeFiles/QRScanner.dir
+E:/Unity/UnityProjects/QRScanner/cmake-build-release/CMakeFiles/libBV.dir
+E:/Unity/UnityProjects/QRScanner/cmake-build-release/CMakeFiles/edit_cache.dir
+E:/Unity/UnityProjects/QRScanner/cmake-build-release/CMakeFiles/rebuild_cache.dir
