@@ -1,0 +1,2 @@
+"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\ar.exe" qc liblibBV.a CMakeFiles/libBV.dir/lib/libBV/lib/Grafik.cxx.obj CMakeFiles/libBV.dir/lib/libBV/lib/SimpleFont.cxx.obj CMakeFiles/libBV.dir/lib/libBV/lib/AviRead.cxx.obj CMakeFiles/libBV.dir/lib/libBV/lib/AviWrite.cxx.obj CMakeFiles/libBV.dir/lib/libBV/lib/BmpRead.cxx.obj CMakeFiles/libBV.dir/lib/libBV/lib/BmpWrite.cxx.obj CMakeFiles/libBV.dir/lib/libBV/lib/FFT.cxx.obj CMakeFiles/libBV.dir/lib/libBV/lib/FileIO.cxx.obj
+"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\ranlib.exe" liblibBV.a

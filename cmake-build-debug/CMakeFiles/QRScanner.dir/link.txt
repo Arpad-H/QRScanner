@@ -1,3 +1,3 @@
-C:\Users\quint\AppData\Local\Programs\CLion\bin\cmake\win\x64\bin\cmake.exe -E rm -f CMakeFiles\QRScanner.dir/objects.a
-C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\ar.exe qc CMakeFiles\QRScanner.dir/objects.a @CMakeFiles\QRScanner.dir\objects1.rsp
-C:\Users\quint\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\QRScanner.dir/objects.a -Wl,--no-whole-archive -o QRScanner.exe -Wl,--out-implib,libQRScanner.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\QRScanner.dir\linkLibs.rsp
+"D:\Program Files (x86)\JetBrains\CLion\bin\cmake\win\x64\bin\cmake.exe" -E rm -f CMakeFiles\QRScanner.dir/objects.a
+"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\ar.exe" qc CMakeFiles\QRScanner.dir/objects.a @CMakeFiles\QRScanner.dir\objects1.rsp
+"D:\Program Files (x86)\JetBrains\CLion\bin\mingw\bin\g++.exe"  -static-libstdc++ -static-libgcc -static -g -Wl,--whole-archive CMakeFiles\QRScanner.dir/objects.a -Wl,--no-whole-archive -o QRScanner.exe -Wl,--out-implib,libQRScanner.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\QRScanner.dir\linkLibs.rsp
