@@ -16,7 +16,7 @@ Developed at the Hochschule Osnabrück for the Module Imageprocessing.
 ---
 
 # Documentation
-
+**[Read the Full Documentation (PDF)](QrCodeScannerBericht.pdf)**
 # Author
 Created by Arapd Horvath
 
