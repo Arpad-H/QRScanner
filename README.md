@@ -1,6 +1,7 @@
 # QR Code Scanner
 
-A custom-built QR Code Scanner written from scratch — no OpenCV, no third-party QR libraries. This project is focused on **low-level image processing**, **pattern recognition**, and **QR decoding logic**
+A custom-built QR Code Scanner written from scratch — no OpenCV, no third-party QR libraries. This project is focused on **low-level image processing**, **pattern recognition**, and **QR decoding logic**.
+
 Developed at the Hochschule Osnabrück for the Module Imageprocessing.
 
 ---
